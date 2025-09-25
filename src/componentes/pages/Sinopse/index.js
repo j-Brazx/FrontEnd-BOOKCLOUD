@@ -27,8 +27,14 @@ export default function Sinopse() {
               <Texto>
                 <h2 className="text-2xl font-bold mb-4">SINOPSE</h2>
                 <h2 className="text-gray-700 leading-relaxed mb-4">
-                  Um romance delicado e intenso sobre amor proibido na Polônia
-                  comunista.
+                 "Nadando no Escuro" de Tomasz Jedrowski conta a 
+                 história de Ludwik, um jovem polaco que se apaixona por Janusz num
+                  acampamento agrícola durante o regime comunista nos anos 80. O livro 
+                  explora o amor proibido e a liberdade num ambiente de repressão 
+                  política e social, onde um romance gay era considerado impossível.
+                  A obra é uma mistura de política, romance e poesia, destacando o
+                  impacto da sociedade conservadora e a luta pela felicidade num 
+                  período de incerteza
                 </h2>
 
                 <Disponível className="text-red-600 font-semibold mb-4">

@@ -11,11 +11,12 @@ const Container = styled.div`
 
 const ColunaCategoria = styled.div`
   display: flex;
+  flex-direction: column;
 `;
 
 const BtnAdicionar = styled.button`
-  width: 200px;
-  height: 40px;
+  width: 200px;         
+  gap: 10px; 
   background: #27387f;
   color: white;
   font-size: 22px;
@@ -25,16 +26,21 @@ const BtnAdicionar = styled.button`
 `;
 
 const NomeCat = styled.div`
+ 
+  display: flex;           
+  flex-direction: column;          
+`;
+
+const Cat = styled.button`
   width: 200px;
   background: #27387f;
   color: white;
   font-size: 22px;
   border: none;
-  padding: 10px;
-  margin: 10px;
-  display: flex;           
-  flex-direction: column;  
-  gap: 10px;               
+  padding: 10px;          
+  gap: 10px;       
+  margin-bottom: 10px;   
+  margin-left: 10px;     
 `;
 
 const FundoModal = styled.div`
@@ -157,8 +163,9 @@ export default function Categorias() {
       <ColunaCategoria>
         <BtnAdicionar onClick={() => setModal(true)}>Adicionar</BtnAdicionar>
          <NomeCat>
+          
     {categorias.map((cat) => (
-      <div key={cat.id}>{cat.nome_categoria}</div>
+      <Cat><div key={cat.id}>{cat.nome_categoria}</div></Cat>
     ))}
   </NomeCat>
         {ModalOpen && (
