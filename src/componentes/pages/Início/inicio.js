@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import Fundo from "../../img/FundoLivros.webp";
+import axios from "axios";
 
 const GlobalStyle = createGlobalStyle`
 body {  
@@ -169,9 +170,52 @@ const Option = styled.h3`
   font-size: 17px;
 `;
 
+const Img = styled.img`
+      width: 100%;
+      height: 270px;
+      object-fit: cover;
+      border-radius: 30px;
+`
+
+const Div = styled.div`
+        width: 180px;
+        margin: 15px;
+        text-align: center;
+        border-radius: 100px;
+        padding: 10px;
+        backgroundColor: #f5f5f5;
+`
+
 export default function Inicio() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const [livros, setLivros] = useState([]);
+
+  useEffect(() => {
+  axios.get("http://localhost:3000/livros/acervolivros")
+    .then((res) => {
+      const livrosComImagem = res.data.map((livro) => {
+        let imagemBase64 = null;
+
+        if (livro.imagem?.data) { 
+          // se o backend devolve { data: [...] }
+          const bytes = new Uint8Array(livro.imagem.data);
+          let binary = "";
+          bytes.forEach((b) => (binary += String.fromCharCode(b)));
+          imagemBase64 = `data:image/jpeg;base64,${btoa(binary)}`;
+        }
+
+        return {
+          ...livro,
+          imagem: imagemBase64,
+        };
+      });
+
+      setLivros(livrosComImagem);
+    })
+    .catch((err) => console.error("Erro ao buscar livros:", err));
+}, []);
+
 
   return (
     <>
@@ -197,7 +241,21 @@ export default function Inicio() {
           </Text>
         </QuadroRight>
       </Quadro>
-      <Container></Container>
+      <Container>
+  {livros.map((livro) => (
+    <Div
+      key={livro.id}
+    >
+     {livro.imagem && (
+  <Img
+    src={livro.imagem}
+    alt={livro.nome}
+  />
+)}
+    </Div>
+  ))}
+</Container>
+
       <FabContainer>
         <OptionButton open={open} onClick={() => navigate("/cadastrar-livro")}>
           <Option>Novo Exemplar</Option>
