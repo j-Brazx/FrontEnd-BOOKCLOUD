@@ -1,89 +1,216 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import Livro from '../../Malim/nadandonoescuri.jpg'
+import axios from "axios";
+
+const FundoModal = styled.div`
+  background: rgba(0, 0, 0, 0.6);
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: -1px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+   z-index: 9998;
+`;
+const Modal = styled.form`
+  background: #ffffffff;
+  width: 300px;
+  height: 300px;
+  position: fixed;
+  border-radius: 15px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 20px;
+    z-index: 9999;
+`;
+
 
 export default function Sinopse() {
+  const { id } = useParams();
+  const [livro, setLivro] = useState(null);
+  const [ModalOpen, setModal] = useState(false);
+
+  useEffect(() => {
+    axios
+      .get(`http://localhost:3000/livros/livroSinopse/${id}`)
+      .then((res) => {
+        const dados = Array.isArray(res.data) ? res.data[0] : res.data;
+        if (!dados) return;
+
+        let imagemBase64 = null;
+        if (dados.imagem?.data) {
+          const bytes = new Uint8Array(dados.imagem.data);
+          let binary = "";
+          bytes.forEach((b) => (binary += String.fromCharCode(b)));
+          imagemBase64 = `data:image/jpeg;base64,${btoa(binary)}`;
+        }
+
+        setLivro({ ...dados, imagem: imagemBase64 });
+      })
+      .catch((err) => console.error("Erro ao buscar livro:", err));
+  }, [id]);
+
+  if (!livro) {
+    return (
+      <p style={{ textAlign: "center", marginTop: "50px" }}>
+        Carregando livro...
+      </p>
+    );
+  }
+
   return (
-    <>
-      <div className="bg-gray-100 min-h-screen flex flex-col">
-        <main className="flex justify-center items-center flex-1 p-6">
-          <div className="max-w-4xl w-full p-6 shadow-lg rounded-2xl bg-white">
-            <p className="text-gray-500 text-sm mb-4">
-              Acervo &gt; Romance &gt;{" "}
-              <span className="font-semibold">Nadando no escuro</span>
-            </p>
+    <Container>
+      <Main>
+        <Card>
+          <Breadcrumb>
+            Acervo &gt; {livro.nome_categoria} &gt;{" "}
+            <span className="font-semibold">{livro.nome}</span>
+          </Breadcrumb>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div classNameo="flex flex-col items-center">
-                <img src={Livro} alt="Livro" /> 
-                <div className="mt-3 flex gap-1">
-                  <span className="text-blue-500 text-xl">★</span>
-                  <span className="text-blue-500 text-xl">★</span>
-                  <span className="text-blue-500 text-xl">★</span>
-                  <span className="text-gray-300 text-xl">★</span>
-                </div>
-              </div>
+          <Grid>
+            <ImageContainer>
+              <Img src={livro.imagem} alt={livro.nome} />
+            </ImageContainer>
 
-              <Texto>
-                <h2 className="text-2xl font-bold mb-4">SINOPSE</h2>
-                <h2 className="text-gray-700 leading-relaxed mb-4">
-                 "Nadando no Escuro" de Tomasz Jedrowski conta a 
-                 história de Ludwik, um jovem polaco que se apaixona por Janusz num
-                  acampamento agrícola durante o regime comunista nos anos 80. O livro 
-                  explora o amor proibido e a liberdade num ambiente de repressão 
-                  política e social, onde um romance gay era considerado impossível.
-                  A obra é uma mistura de política, romance e poesia, destacando o
-                  impacto da sociedade conservadora e a luta pela felicidade num 
-                  período de incerteza
-                </h2>
+            <TextContainer>
+              <Titulo>SINOPSE</Titulo>
+              <Descricao>"{livro.sinopse}"</Descricao>
 
-                <Disponível className="text-red-600 font-semibold mb-4">
-                  DISPONÍVEL EM: 14/07/2025
-                </Disponível>
+              
 
-                <Botao className="bg-blue-700 hover:bg-blue-800 text-white px-6 py-2 rounded-2xl shadow">
-                  Reservar
-                </Botao>
-              </Texto>
-            </div>
+              <Botao>Reservar</Botao>
+            </TextContainer>
+          </Grid>
 
-            <Comu className="flex justify-center mt-6">
-              <button className="bg-gray-300 text-blue-900 font-semibold px-6 py-2 rounded-2xl shadow hover:bg-gray-400">
-                Comunidade
-              </button>
-            </Comu>
-          </div>
-        </main>
-      </div>
-    </>
+          <ComuContainer>
+            <ComuBotao>Comunidade</ComuBotao>
+   
+          </ComuContainer>
+        </Card>
+      </Main>
+    </Container>
   );
 }
 
-const Texto = styled.div`
+const Container = styled.div`
+  background-color: #f3f4f6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Main = styled.main`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding: 2rem;
+`;
+
+const Card = styled.div`
+  max-width: 1000px;
+  width: 100%;
+  padding: 2rem;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+`;
+
+const Breadcrumb = styled.p`
+  color: gray;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ImageContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Img = styled.img`
+  width: 70%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+  @media (max-width: 768px) {
+    width: 80%;
+  }
+`;
+
+const TextContainer = styled.div`
   justify-self: center;
   margin-bottom: 30px;
 `;
 
-const Comu = styled.div`
-  background-color: gray;
+const Titulo = styled.h2`
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
 `;
 
+const Descricao = styled.p`
+  color: #444;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+`;
 
-const Disponível = styled.p`
+const Disponivel = styled.p`
   color: red;
   font-weight: bold;
-  font-size: 25px;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
 `;
+
 const Botao = styled.button`
-  padding: 14px;
+  padding: 12px 24px;
   background: #27387f;
   color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
   cursor: pointer;
-  font-size: 16px;
-  margin-top: 10px;
   transition: background 0.3s;
 
   &:hover {
     background: #1d2b5c;
+  }
+`;
+
+const ComuContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+`;
+
+const ComuBotao = styled.button`
+  background: #d3d3d3;
+  color: #1e3a8a;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #bfbfbf;
   }
 `;

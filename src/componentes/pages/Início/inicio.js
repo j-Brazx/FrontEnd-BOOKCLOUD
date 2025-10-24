@@ -193,12 +193,12 @@ const Img = styled.img`
 
 const StatusCircle = styled.div`
   width: 40px;
-  height: 40px
+  height: 40px; 
   border-radius: 50%;
   background-color: ${(props) => (props.livre ? "#34ba3a" : "#ce1f22")};
   position: absolute;
   bottom: 25px;   
-  left: 160px;  
+  left: 135px;  
 `;
 
 export default function Inicio() {
@@ -257,12 +257,12 @@ export default function Inicio() {
       </Quadro>
       <Container>
   {livros.map((livro) => (
-    <Div key={livro.id}>
+    <Div key={livro.id} onClick={() => navigate(`/sinopse/${livro.id}`)}>
       {livro.imagem && (
         <Img src={livro.imagem} alt={livro.nome} />
       )}
 
-      <StatusCircle livre={livro.status === "disponivel"} />
+      <StatusCircle livre={livro.status === "livre"} />
     </Div>
   ))}
 </Container>

@@ -6,7 +6,7 @@ const Container = styled.div`
   background: white;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   padding: 20px;
 `;
 
@@ -37,11 +37,11 @@ const NomeCat = styled.div`
 `;
 
 const Cat = styled.button`
+  background: ${(props) => (props.selecionado ? "#ffffffff" : "#27387f")};
   width: 200px;
-  background: #27387f;
-  color: white;
+  color: ${(props) => (props.selecionado ? "#27387f" : "#ffffffff")};
   font-size: 22px;
-  border: none;
+  border: ${(props) => (props.selecionado ? "3px solid #27387f" : "none")};
   padding: 10px;               
   margin-bottom: 10px;   
   margin-left: 10px;    
@@ -61,6 +61,7 @@ const FundoModal = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+   z-index: 9998;
 `;
 const Modal = styled.form`
   background: #ffffffff;
@@ -71,6 +72,7 @@ const Modal = styled.form`
   text-align: center;
   font-weight: 800;
   font-size: 20px;
+    z-index: 9999;
 `;
 
 const Botao = styled.button`
@@ -108,7 +110,6 @@ const Label = styled.h1`
   margin-left: 5px;
 `;
 
-// estilo dos cards de livros
 const ListaLivros = styled.div`
   margin-top: 30px;
   display: flex;
@@ -116,36 +117,46 @@ const ListaLivros = styled.div`
   gap: 20px;
 `;
 
-const CardLivro = styled.div`
-  width: 180px;
-  background: #f5f5f5;
-  border-radius: 10px;
+const Div = styled.div`
+  width: 150px;
+  margin: 15px;
+  text-align: center;
+  border-radius: 15px;
   padding: 10px;
   position: relative;
-  text-align: center;
+   transition: transform 0.25s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 `;
 
-const ImgLivro = styled.img`
+const Img = styled.img`
   width: 100%;
-  height: 250px;
+  height: 240px;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 30px;
+`;
+
+const ContainerLivros = styled.div`
+  width: 75vw;
+  height: 100%;
+  margin-left:5%;
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 60vh;
+  border: 3px solid #27387f;
+  border-radius: 15px;
 `;
 
 const StatusCircle = styled.div`
-  width: 20px;
-  height: 20px;
+  width: 40px;
+  height: 40px; 
   border-radius: 50%;
   background-color: ${(props) => (props.livre ? "#34ba3a" : "#ce1f22")};
   position: absolute;
-  bottom: 15px;
-  right: 15px;
-  border: 2px solid white;
-  transition: transform 0.3s ease-in-out;
-
-  &:hover {
-    transform: scale(1.3);
-  }
+  bottom: 25px;   
+  left: 135px;  
 `;
 
 export default function Categorias() {
@@ -158,6 +169,7 @@ export default function Categorias() {
   const [livros, setLivros] = useState([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
   const navigate = useNavigate();
+  const [botaoSelecionado, setBotaoSelecionado] = useState(null);
 
   useEffect(() => {
     const fetchCategorias = async () => {
@@ -250,10 +262,15 @@ export default function Categorias() {
         <BtnAdicionar onClick={() => setModal(true)}>Adicionar</BtnAdicionar>
         <NomeCat>
           {categorias.map((cat) => (
-            <Cat  key={cat.id} onClick={() => fetchLivros(cat.id)} >
-              {cat.nome_categoria}
-            </Cat>
-          ))}
+  <Cat
+    key={cat.id}
+    selecionado={botaoSelecionado === cat.id}
+    onClick={() => {setBotaoSelecionado(cat.id);
+  fetchLivros(cat.id);}}
+  >
+    {cat.nome_categoria}
+  </Cat>
+))}
         </NomeCat>
         {ModalOpen && (
           <FundoModal onClick={() => setModal(false)}>
@@ -286,33 +303,31 @@ export default function Categorias() {
         )}
       </ColunaCategoria>
 
-  
+  <ContainerLivros>
       {categoriaSelecionada && (
-        <div style={{ marginTop: "20px" }}>
-          <h2>
-            Livros da categoria:{" "}
+        <div>
+          <h2 style={{marginLeft: 20}}>
+            Livros do Gênero:{" "}
             {categorias.find((c) => c.id === categoriaSelecionada)?.nome_categoria}
           </h2>
 
           <ListaLivros>
             {livros.length > 0 ? (
               livros.map((livro) => (
-                <CardLivro key={livro.id}>
-                  {livro.imagem && (
-                    <ImgLivro
-                      src={`data:image/jpeg;base64,${livro.imagem}`} 
-                    />
-                  )}
-                  <StatusCircle livre={livro.status === "livre"} />
-                  <p>{livro.nome}</p>
-                </CardLivro>
+                <Div key={livro.id}>
+      {livro.imagem && (
+        <Img src={livro.imagem} alt={livro.nome} />
+      )}
+
+      <StatusCircle livre={livro.status === "livre"} />
+    </Div>
               ))
             ) : (
               <p>Nenhum livro encontrado nesta categoria.</p>
             )}
-          </ListaLivros>
-        </div>
+          </ListaLivros></div>
       )}
+      </ContainerLivros>
     </Container>
   );
 }
