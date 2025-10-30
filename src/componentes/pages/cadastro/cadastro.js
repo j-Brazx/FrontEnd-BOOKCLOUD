@@ -4,7 +4,6 @@ import Fundo from "../../img/FundoLivros.webp";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-
 const GlobalStyle = createGlobalStyle`
 body{  
   background: 
@@ -105,7 +104,7 @@ const WelcomeSection = styled.div`
 
 export default function Cadastro() {
   const location = useLocation();
-  const emailRecebido = location.state?.email || ""
+  const emailRecebido = location.state?.email || "";
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState(emailRecebido);
@@ -117,17 +116,13 @@ export default function Cadastro() {
   const navigate = useNavigate();
 
   const execSubmit = async (event) => {
-    // console.log("clicou");
-    alert("clicou");  
-    alert(senha);
-    alert(confSenha);
     if (senha === confSenha) {
       event.preventDefault();
       setLoading(true);
       setErro("");
 
       try {
-          alert('TRY');
+        alert("TRY");
         const resposta = await fetch("http://localhost:3000/usuarios/criar", {
           method: "POST",
           headers: {
@@ -181,10 +176,11 @@ export default function Cadastro() {
               required
             />
             <Input
-            placeholder="Insira seu e-mail"
+              placeholder="Insira seu e-mail"
               type="email"
-      value={email}
-      onChange={(e) => setEmail(e.target.value)}
+              value={email}
+
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
             <Input
