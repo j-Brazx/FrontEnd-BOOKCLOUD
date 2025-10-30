@@ -4,37 +4,52 @@ import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   background: white;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  padding: 20px;
 `;
 
 const ColunaCategoria = styled.div`
   display: flex;
+  flex-direction: column;
 `;
 
 const BtnAdicionar = styled.button`
-  width: 200px;
-  height: 40px;
+  width: 200px;         
+  gap: 10px; 
   background: #27387f;
   color: white;
   font-size: 22px;
   border: none;
   padding: 10px;
   margin: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background: #1d2b5c;
+  }
 `;
 
 const NomeCat = styled.div`
-  width: 200px;
-  background: #27387f;
-  color: white;
-  font-size: 22px;
-  border: none;
-  padding: 10px;
-  margin: 10px;
   display: flex;           
-  flex-direction: column;  
-  gap: 10px;               
+  flex-direction: column;          
+`;
+
+const Cat = styled.button`
+  background: ${(props) => (props.selecionado ? "#ffffffff" : "#27387f")};
+  width: 200px;
+  color: ${(props) => (props.selecionado ? "#27387f" : "#ffffffff")};
+  font-size: 22px;
+  border: ${(props) => (props.selecionado ? "3px solid #27387f" : "none")};
+  padding: 10px;               
+  margin-bottom: 10px;   
+  margin-left: 10px;    
+  cursor: pointer;
+  
+  &:hover {
+    background: #1d2b5c;
+  }
 `;
 
 const FundoModal = styled.div`
@@ -46,6 +61,7 @@ const FundoModal = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+   z-index: 9998;
 `;
 const Modal = styled.form`
   background: #ffffffff;
@@ -56,6 +72,7 @@ const Modal = styled.form`
   text-align: center;
   font-weight: 800;
   font-size: 20px;
+    z-index: 9999;
 `;
 
 const Botao = styled.button`
@@ -67,6 +84,11 @@ const Botao = styled.button`
   border: none;
   padding: 10px;
   margin: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background: #1d2b5c;
+  }
 `;
 
 const Input = styled.input`
@@ -88,6 +110,55 @@ const Label = styled.h1`
   margin-left: 5px;
 `;
 
+const ListaLivros = styled.div`
+  margin-top: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+`;
+
+const Div = styled.div`
+  width: 150px;
+  margin: 15px;
+  text-align: center;
+  border-radius: 15px;
+  padding: 10px;
+  position: relative;
+   transition: transform 0.25s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+`;
+
+const Img = styled.img`
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 30px;
+`;
+
+const ContainerLivros = styled.div`
+  width: 75vw;
+  height: 100%;
+  margin-left:5%;
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 60vh;
+  border: 3px solid #27387f;
+  border-radius: 15px;
+`;
+
+const StatusCircle = styled.div`
+  width: 40px;
+  height: 40px; 
+  border-radius: 50%;
+  background-color: ${(props) => (props.livre ? "#34ba3a" : "#ce1f22")};
+  position: absolute;
+  bottom: 25px;   
+  left: 135px;  
+`;
+
 export default function Categorias() {
   const [ModalOpen, setModal] = useState(false);
   const [nome_categoria, setNome] = useState("");
@@ -95,14 +166,15 @@ export default function Categorias() {
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
   const [categorias, setCategorias] = useState([]);
+  const [livros, setLivros] = useState([]);
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
   const navigate = useNavigate();
+  const [botaoSelecionado, setBotaoSelecionado] = useState(null);
 
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
-        const resposta = await fetch(
-          "http://localhost:3000/categorias/selecionar"
-        );
+        const resposta = await fetch("http://localhost:3000/categorias/selecionar");
         const dados = await resposta.json();
         if (resposta.ok) {
           setCategorias(dados);
@@ -122,16 +194,13 @@ export default function Categorias() {
     setErro("");
 
     try {
-      const resposta = await fetch(
-        "http://localhost:3000/categorias/adicionar",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ nome_categoria, descricao }),
-        }
-      );
+      const resposta = await fetch("http://localhost:3000/categorias/adicionar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ nome_categoria, descricao }),
+      });
 
       const dados = await resposta.json();
 
@@ -152,25 +221,64 @@ export default function Categorias() {
     }
   };
 
+  const fetchLivros = async (categoriaId) => {
+  try {
+    const resposta = await fetch(
+      `http://localhost:3000/livros/livrosporcat/${categoriaId}`
+    );
+    const dados = await resposta.json();
+
+    if (resposta.ok) {
+    
+      const livrosComImagem = dados.map((livro) => {
+        let imagemBase64 = null;
+
+        if (livro.imagem?.data) {
+          const bytes = new Uint8Array(livro.imagem.data);
+          let binary = "";
+          bytes.forEach((b) => (binary += String.fromCharCode(b)));
+          imagemBase64 = `data:image/jpeg;base64,${btoa(binary)}`;
+        }
+
+        return {
+          ...livro,
+          imagem: imagemBase64, 
+          
+        };
+      });
+      
+      setLivros(livrosComImagem);
+      setCategoriaSelecionada(categoriaId);
+    }
+  } catch (erro) {
+    console.error("Erro ao buscar livros:", erro);
+  }
+};
+
+
   return (
     <Container>
       <ColunaCategoria>
         <BtnAdicionar onClick={() => setModal(true)}>Adicionar</BtnAdicionar>
-         <NomeCat>
-    {categorias.map((cat) => (
-      <div key={cat.id}>{cat.nome_categoria}</div>
-    ))}
-  </NomeCat>
+        <NomeCat>
+          {categorias.map((cat) => (
+  <Cat
+    key={cat.id}
+    selecionado={botaoSelecionado === cat.id}
+    onClick={() => {setBotaoSelecionado(cat.id);
+  fetchLivros(cat.id);}}
+  >
+    {cat.nome_categoria}
+  </Cat>
+))}
+        </NomeCat>
         {ModalOpen && (
           <FundoModal onClick={() => setModal(false)}>
             <Modal onClick={(e) => e.stopPropagation()} onSubmit={execSubmit}>
               <H1>Nova Categoria</H1>
-              <Label className="form-label" htmlFor="nome">
-                Nome
-              </Label>
+              <Label htmlFor="nome">Nome</Label>
               <Input
                 type="text"
-                className="form-control"
                 id="nome_categoria"
                 name="nome_categoria"
                 value={nome_categoria}
@@ -178,13 +286,10 @@ export default function Categorias() {
                 placeholder="Insira o nome da Categoria"
                 required
               />
-              <Label className="form-label" htmlFor="descricao">
-                Descrição
-              </Label>
+              <Label htmlFor="descricao">Descrição</Label>
               <Input
                 style={{ height: "60px" }}
                 type="text"
-                className="form-control"
                 id="descricao"
                 name="descricao"
                 value={descricao}
@@ -197,6 +302,32 @@ export default function Categorias() {
           </FundoModal>
         )}
       </ColunaCategoria>
+
+  <ContainerLivros>
+      {categoriaSelecionada && (
+        <div>
+          <h2 style={{marginLeft: 20}}>
+            Livros do Gênero:{" "}
+            {categorias.find((c) => c.id === categoriaSelecionada)?.nome_categoria}
+          </h2>
+
+          <ListaLivros>
+            {livros.length > 0 ? (
+              livros.map((livro) => (
+                <Div key={livro.id}>
+      {livro.imagem && (
+        <Img src={livro.imagem} alt={livro.nome} />
+      )}
+
+      <StatusCircle livre={livro.status === "livre"} />
+    </Div>
+              ))
+            ) : (
+              <p>Nenhum livro encontrado nesta categoria.</p>
+            )}
+          </ListaLivros></div>
+      )}
+      </ContainerLivros>
     </Container>
   );
 }

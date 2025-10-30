@@ -15,6 +15,9 @@ import Adicionar from "./componentes/pages/Add-Excluir/adicionar";
 import Categorias from "./componentes/pages/Categorias/categorias";
 import Perfil from "./componentes/pages/perfil/perfil";
 import Sinopse from "./componentes/pages/Sinopse";
+import Acervo from "./componentes/pages/acervo";
+import Painel from "./componentes/pages/dashboard";
+import Comunidade from "./componentes/pages/Comunidade/comunidade";
 
 function Layout({ children }) {
   const location = useLocation();
@@ -45,7 +48,10 @@ function App() {
             <Route path="/categorias" element={<Categorias />} />
             <Route path="/cadastrar-livro" element={<Adicionar />} />
             <Route path="/perfil" element={<Perfil />} />
-            <Route path="/sinopse" element={<Sinopse />} />
+            <Route path="/sinopse/:id" element={<Sinopse />} />
+            <Route path="/acervo" element={<Acervo />} />
+            <Route path="/painel" element={<Painel />} />
+            <Route path="/comunidade/:id" element={<Comunidade />} />
           </Routes>
         </Layout>
       </Router>

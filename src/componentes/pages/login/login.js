@@ -112,7 +112,7 @@ export default function Login() {
     const navigate = useNavigate();
 
     const executaSubmit = async (event) =>{
-        event.preventDefault();//previne recarregamento padrão da página
+        event.preventDefault();
         setLoading(true);
         setError('');
         try{
