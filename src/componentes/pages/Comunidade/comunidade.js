@@ -110,6 +110,7 @@ export default function Comunidade() {
       setNovaNota(0);
     } catch (erro) {
       console.error("Erro ao enviar comentário:", erro);
+      console.log("1")
     }
   };
 
