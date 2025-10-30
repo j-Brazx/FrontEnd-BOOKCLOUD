@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const FundoModal = styled.div`
   background: rgba(0, 0, 0, 0.6);
@@ -31,6 +32,25 @@ export default function Sinopse() {
   const { id } = useParams();
   const [livro, setLivro] = useState(null);
   const [ModalOpen, setModal] = useState(false);
+  const navigate = useNavigate();
+  
+
+   const reservarLivro = async () => {
+  try {
+    const usuarioId = 1; // substitua pelo ID do usuário logado
+    const res = await axios.post("http://localhost:3000/emprestimos/solicitar", {
+      id_livro: id,
+      id_usuario: usuarioId
+    });
+
+    alert("Livro reservado com sucesso!");
+  } catch (err) {
+    console.error("Erro ao reservar livro:", err.response?.data || err.message);
+    alert(
+      "Não foi possível reservar o livro: " + (err.response?.data?.erro || err.message)
+    );
+  }
+};
 
   useEffect(() => {
     axios
@@ -60,6 +80,10 @@ export default function Sinopse() {
     );
   }
 
+  const Comunidade = () => {
+    navigate(`/comunidade/${id}`);
+  };
+
   return (
     <Container>
       <Main>
@@ -80,12 +104,17 @@ export default function Sinopse() {
 
               
 
-              <Botao>Reservar</Botao>
+              <Botao onClick={reservarLivro}>Reservar</Botao>
+              <p style={{ fontWeight: "bold", color: livro.data_devolucao ? "red" : "green" }}>
+  {livro.data_devolucao
+    ? `Devolução prevista: ${new Date(livro.data_devolucao).toLocaleDateString("pt-BR")}`
+    : "Livro disponível"}
+</p>
             </TextContainer>
           </Grid>
 
           <ComuContainer>
-            <ComuBotao>Comunidade</ComuBotao>
+            <ComuBotao onClick={Comunidade}>Comunidade</ComuBotao>
    
           </ComuContainer>
         </Card>

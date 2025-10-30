@@ -17,6 +17,7 @@ import Perfil from "./componentes/pages/perfil/perfil";
 import Sinopse from "./componentes/pages/Sinopse";
 import Acervo from "./componentes/pages/acervo";
 import Painel from "./componentes/pages/dashboard";
+import Comunidade from "./componentes/pages/Comunidade/comunidade";
 
 function Layout({ children }) {
   const location = useLocation();
@@ -50,7 +51,7 @@ function App() {
             <Route path="/sinopse/:id" element={<Sinopse />} />
             <Route path="/acervo" element={<Acervo />} />
             <Route path="/painel" element={<Painel />} />
-
+            <Route path="/comunidade/:id" element={<Comunidade />} />
           </Routes>
         </Layout>
       </Router>
