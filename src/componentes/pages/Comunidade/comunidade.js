@@ -8,28 +8,28 @@ const GlobalStyle = createGlobalStyle`
   body {
     background: #27387f; 
   }
-`
+`;
 const Titulo = styled.div`
   justify-self: center;
   font-weight: 900;
   font-size: 50px;
-  color: white
+  color: white;
 `;
 
 const Comentario = styled.div`
-    background-color: white;
-    width:85%;
-    margin-left: 3%;
-    border-radius: 15px;
-`
+  background-color: white;
+  width: 85%;
+  margin-left: 3%;
+  border-radius: 15px;
+`;
 const CaixaTexto = styled.textarea`
   width: 80%;
   resize: none;
   margin-left: 3%;
   height: 50px;
-`
-const Botao= styled.button`
-   background-color: #27387F;
+`;
+const Botao = styled.button`
+  background-color: #27387f;
   color: white;
   font-size: 24px;
   border: none;
@@ -40,20 +40,22 @@ const Botao= styled.button`
   &:hover {
     background: #1d2b5c;
   }
-`
+`;
 const DivStar = styled.div`
   margin-left: 3%;
   margin-bottom: 10px;
-`
+`;
 
 function renderEstrelas(avaliacao) {
   const estrelas = [];
-  const cheia = Math.floor(avaliacao); 
-  const meia = avaliacao % 1 >= 0.5 ? 1 : 0; 
-  const vazia = 5 - cheia - meia; 
+  const cheia = Math.floor(avaliacao);
+  const meia = avaliacao % 1 >= 0.5 ? 1 : 0;
+  const vazia = 5 - cheia - meia;
 
   for (let i = 0; i < cheia; i++) {
-    estrelas.push(<Star key={`c${i}`} size={20} color="#FACC15" fill="#FACC15" />);
+    estrelas.push(
+      <Star key={`c${i}`} size={20} color="#FACC15" fill="#FACC15" />
+    );
   }
 
   if (meia) {
@@ -68,16 +70,17 @@ function renderEstrelas(avaliacao) {
 }
 
 export default function Comunidade() {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const [comentarios, setComentarios] = useState([]);
   const [novoComentario, setNovoComentario] = useState("");
   const [novaNota, setNovaNota] = useState(0);
 
-
   useEffect(() => {
     const fetchComentarios = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/comentario/listarPorLivro/${id}`);
+        const res = await fetch(
+          `http://localhost:3000/comentario/listarPorLivro/${id}`
+        );
         const data = await res.json();
         setComentarios(data);
       } catch (erro) {
@@ -87,9 +90,9 @@ export default function Comunidade() {
     fetchComentarios();
   }, [id]);
 
- 
   const enviarComentario = async () => {
-    if (!novoComentario || novaNota === 0) return alert("Dê uma nota e escreva algo!");
+    if (!novoComentario || novaNota === 0)
+      return alert("Dê uma nota e escreva algo!");
     const novo = {
       texto: novoComentario,
       nota: novaNota,
@@ -110,30 +113,31 @@ export default function Comunidade() {
       setNovaNota(0);
     } catch (erro) {
       console.error("Erro ao enviar comentário:", erro);
-      console.log("1")
+      console.log("2");
     }
   };
 
   return (
     <>
-    <GlobalStyle/>
-    <div className="min-h-screen bg-[#1A237E] text-white p-6 flex flex-col items-center">
-      <Titulo>Comentários</Titulo>
-      
-      <div className="flex flex-col gap-4 w-full max-w-xl">
-        {comentarios.map((c, i) => (
-          <Comentario
-            key={i}
-            className="flex flex-col bg-white text-black rounded-2xl p-3 shadow-md"
-          >
-            <p className="text-sm font-semibold">{c.usuario_nome || "Anônimo"} {renderEstrelas(c.avaliacao)}
-            </p>
-            
-            <p className="text-sm">{c.texto}</p>
-          </Comentario>
-        ))}
+      <GlobalStyle />
+      <div className="min-h-screen bg-[#1A237E] text-white p-6 flex flex-col items-center">
+        <Titulo>Comentários</Titulo>
+
+        <div className="flex flex-col gap-4 w-full max-w-xl">
+          {comentarios.map((c, i) => (
+            <Comentario
+              key={i}
+              className="flex flex-col bg-white text-black rounded-2xl p-3 shadow-md"
+            >
+              <p className="text-sm font-semibold">
+                {c.usuario_nome || "Anônimo"} {renderEstrelas(c.avaliacao)}
+              </p>
+
+              <p className="text-sm">{c.texto}</p>
+            </Comentario>
+          ))}
+        </div>
       </div>
-    </div>
       <div className="bg-white text-black rounded-2xl p-4 w-full max-w-xl mb-6 shadow-lg">
         <h2 className="text-lg font-semibold mb-2">Deixe seu comentário</h2>
 
@@ -143,7 +147,9 @@ export default function Comunidade() {
               key={n}
               size={28}
               className={`cursor-pointer transition ${
-                n <= novaNota ? "fill-yellow-400 text-yellow-400" : "text-gray-400"
+                n <= novaNota
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "text-gray-400"
               }`}
               onClick={() => setNovaNota(n)}
             />
@@ -157,11 +163,8 @@ export default function Comunidade() {
           onChange={(e) => setNovoComentario(e.target.value)}
         />
 
-        <Botao
-          onClick={enviarComentario}
-        >
-          Enviar
-        </Botao>
-      </div></>
+        <Botao onClick={enviarComentario}>Enviar</Botao>
+      </div>
+    </>
   );
 }
