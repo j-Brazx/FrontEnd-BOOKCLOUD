@@ -4,7 +4,7 @@ import Fundo from "../../img/FundoLivros.webp";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-<<<<<<< HEAD
+
 const selecionarCategorias = async () => {
   try {
     const resposta = await fetch(
@@ -29,7 +29,7 @@ const selecionarCategorias = async () => {
   } catch (erro) {
     console.error("Erro ao carregar categorias:", erro);
     throw erro;
-=======
+    
 const GlobalStyle = createGlobalStyle`
 body{  
   background: 
@@ -141,7 +141,7 @@ const Botao = styled.button`
 
   &:hover {
     background: #1d2b5c;
->>>>>>> 84f9b33c58db6c543ae0c218c2ad571f58af0c58
+ 84f9b33c58db6c543ae0c218c2ad571f58af0c58
   }
 `;
 
