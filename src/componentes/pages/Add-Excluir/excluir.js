@@ -5,7 +5,11 @@ import { useNavigate } from "react-router-dom";
 
 const GlobalStyle = createGlobalStyle`
 body{  
+<<<<<<< HEAD
   background:
+=======
+  background: 
+>>>>>>> e8b7a0bdf723c64b47e6b8790478dc4761806c4d
       linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
       url(${Fundo});
   background-size: cover;

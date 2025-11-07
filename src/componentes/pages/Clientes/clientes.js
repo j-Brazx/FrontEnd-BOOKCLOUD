@@ -36,34 +36,27 @@ export default function Tabela() {
       <Table>
         <Thead>
           <tr>
-            <Th>ID</Th>
-            <Th>Status</Th>
-            <Th>Livro</Th>
-            <Th>Reservas</Th>
-            <Th>Multas</Th>
-            <Th>Nome</Th>
+            <Th>ID do Cliente</Th>
+            <Th>Nome do Usuário</Th>
+            <Th>Nome do Livro</Th>
+            <Th>Reserva Atual (Data de Devolução)</Th>
           </tr>
         </Thead>
         <Tbody>
           <Tr>
-            <Td>001</Td>
-            <Td>Ativo</Td>
-            <Td>Nenhuma</Td>
-            <Td>2 livros</Td>
-            <Td>R$ 0,00</Td>
-            <Td>Josevaldo</Td>
+            <Td>1</Td>
+            <Td>João Silva</Td>
+            <Td>O Hobbit</Td>
+            <Td>2025-11-15</Td>
           </Tr>
           <Tr>
-            <Td>002</Td>
-            <Td>Suspenso</Td>
-            <Td>Nenhuma</Td>
-            <Td>Nenhuma</Td>
-            <Td>R$ 18,00</Td>
-            <Td>Roberto</Td>
+            <Td>2</Td>
+            <Td>Maria Lima</Td>
+            <Td>1984</Td>
+            <Td>2025-11-20</Td>
           </Tr>
         </Tbody>
       </Table>
     </div>
   );
 }
-
