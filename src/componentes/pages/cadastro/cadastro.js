@@ -116,22 +116,13 @@ export default function Cadastro() {
   const navigate = useNavigate();
 
   const execSubmit = async (event) => {
-<<<<<<< HEAD
-=======
-    // console.log("clicou");
-   
->>>>>>> 84f9b33c58db6c543ae0c218c2ad571f58af0c58
     if (senha === confSenha) {
       event.preventDefault();
       setLoading(true);
       setErro("");
 
       try {
-<<<<<<< HEAD
         alert("TRY");
-=======
-         
->>>>>>> 84f9b33c58db6c543ae0c218c2ad571f58af0c58
         const resposta = await fetch("http://localhost:3000/usuarios/criar", {
           method: "POST",
           headers: {
