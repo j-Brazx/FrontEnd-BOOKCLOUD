@@ -18,11 +18,13 @@ import Sinopse from "./componentes/pages/Sinopse";
 import Acervo from "./componentes/pages/acervo";
 import Painel from "./componentes/pages/dashboard";
 import Comunidade from "./componentes/pages/Comunidade/comunidade";
+import Excluir from "./componentes/pages/Add-Excluir/excluir"
+import Editar from "./componentes/pages/Editar/editar"
 
 function Layout({ children }) {
   const location = useLocation();
 
-  const noHeaderFooterRoutes = ["/login", "/criar", "/", "/cadastrar-livro"];
+  const noHeaderFooterRoutes = ["/login", "/criar", "/", "/cadastrar-livro", "/editar/:id", "/excluir"];
 
   const hideHeaderFooter = noHeaderFooterRoutes.includes(location.pathname);
 
@@ -52,6 +54,8 @@ function App() {
             <Route path="/acervo" element={<Acervo />} />
             <Route path="/painel" element={<Painel />} />
             <Route path="/comunidade/:id" element={<Comunidade />} />
+            <Route path="/excluir" element={<Excluir />} />
+            <Route path="/editar/:id" element={<Editar />} />
           </Routes>
         </Layout>
       </Router>

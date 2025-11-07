@@ -4,6 +4,7 @@ import styled from "styled-components";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+
 const FundoModal = styled.div`
   background: rgba(0, 0, 0, 0.6);
   width: 100vw;
@@ -34,14 +35,24 @@ export default function Sinopse() {
   const [ModalOpen, setModal] = useState(false);
   const navigate = useNavigate();
   
-
-   const reservarLivro = async () => {
+const reservarLivro = async () => {
   try {
-    const usuarioId = 1; // substitua pelo ID do usuário logado
+    const usuarioId = 1; // substitua depois pelo ID real do usuário logado
+    const hoje = new Date();
+    const dataDevolucao = new Date();
+    dataDevolucao.setDate(hoje.getDate() + 15); // adiciona 15 dias
+
     const res = await axios.post("http://localhost:3000/emprestimos/solicitar", {
       id_livro: id,
-      id_usuario: usuarioId
+      id_usuario: usuarioId,
+      data_devolucao: dataDevolucao.toISOString().split("T")[0] // envia no formato YYYY-MM-DD
     });
+
+    // Atualiza estado local pra refletir o novo status
+    setLivro((prev) => ({
+      ...prev,
+      data_devolucao: dataDevolucao
+    }));
 
     alert("Livro reservado com sucesso!");
   } catch (err) {
@@ -74,11 +85,26 @@ export default function Sinopse() {
 
   if (!livro) {
     return (
-      <p style={{ textAlign: "center", marginTop: "50px" }}>
-        Carregando livro...
-      </p>
+     <p
+  style={{
+    fontWeight: "bold",
+    color: livro?.data_devolucao ? "red" : "green",
+  }}
+>
+  {livro?.data_devolucao
+    ? `📕 Livro indisponível — disponível em: ${new Date(
+        livro.data_devolucao
+      ).toLocaleDateString("pt-BR")}`
+    : "📗 Livro disponível"}
+</p>
+
     );
   }
+
+  const Editar = () => {
+    navigate(`/editar/${id}`);
+  };
+
 
   const Comunidade = () => {
     navigate(`/comunidade/${id}`);
@@ -103,8 +129,10 @@ export default function Sinopse() {
               <Descricao>"{livro.sinopse}"</Descricao>
 
               
-
-              <Botao onClick={reservarLivro}>Reservar</Botao>
+              <SinopseEdit>
+           <Botao onClick={reservarLivro}>Reservar</Botao>
+            <BotaoEditar onClick={Editar}>Editar</BotaoEditar>
+              </SinopseEdit>
               <p style={{ fontWeight: "bold", color: livro.data_devolucao ? "red" : "green" }}>
   {livro.data_devolucao
     ? `Devolução prevista: ${new Date(livro.data_devolucao).toLocaleDateString("pt-BR")}`
@@ -122,6 +150,26 @@ export default function Sinopse() {
     </Container>
   );
 }
+
+const SinopseEdit = styled.div`
+    display: flex;
+    gap: 10px; 
+`;
+
+const BotaoEditar = styled.button`
+     padding: 12px 24px;
+  background: #27387f;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #1d2b5c;
+  }
+`
 
 const Container = styled.div`
   background-color: #f3f4f6;

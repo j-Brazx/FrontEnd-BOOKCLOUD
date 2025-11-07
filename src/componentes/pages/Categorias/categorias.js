@@ -186,6 +186,32 @@ export default function Categorias() {
       }
     };
     fetchCategorias();
+
+    
+  const fetchTodosLivros = async () => {
+    try {
+      const resposta = await fetch("http://localhost:3000/livros/acervolivros");
+      const dados = await resposta.json();
+
+      if (resposta.ok) {
+        const livrosComImagem = dados.map((livro) => {
+          let imagemBase64 = null;
+          if (livro.imagem?.data) {
+            const bytes = new Uint8Array(livro.imagem.data);
+            let binary = "";
+            bytes.forEach((b) => (binary += String.fromCharCode(b)));
+            imagemBase64 = `data:image/jpeg;base64,${btoa(binary)}`;
+          }
+          return { ...livro, imagem: imagemBase64 };
+        });
+
+        setLivros(livrosComImagem);
+      }
+    } catch (erro) {
+      console.error("Erro ao buscar todos os livros:", erro);
+    }
+  };
+    fetchTodosLivros()
   }, []);
 
   const execSubmit = async (event) => {
