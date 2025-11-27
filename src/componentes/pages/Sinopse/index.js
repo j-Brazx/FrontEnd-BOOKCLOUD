@@ -1,68 +1,40 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
-
-const FundoModal = styled.div`
-  background: rgba(0, 0, 0, 0.6);
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  top: -1px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-   z-index: 9998;
-`;
-const Modal = styled.form`
-  background: #ffffffff;
-  width: 300px;
-  height: 300px;
-  position: fixed;
-  border-radius: 15px;
-  text-align: center;
-  font-weight: 800;
-  font-size: 20px;
-    z-index: 9999;
-`;
-
 
 export default function Sinopse() {
   const { id } = useParams();
   const [livro, setLivro] = useState(null);
-  const [ModalOpen, setModal] = useState(false);
   const navigate = useNavigate();
-  
-const reservarLivro = async () => {
-  try {
-    const usuarioId = 1; // substitua depois pelo ID real do usuário logado
-    const hoje = new Date();
-    const dataDevolucao = new Date();
-    dataDevolucao.setDate(hoje.getDate() + 15); // adiciona 15 dias
 
-    const res = await axios.post("http://localhost:3000/emprestimos/solicitar", {
-      id_livro: id,
-      id_usuario: usuarioId,
-      data_devolucao: dataDevolucao.toISOString().split("T")[0] // envia no formato YYYY-MM-DD
-    });
+  // ===============================
+  // 📌 FUNÇÃO DE EMPRESTAR LIVRO
+  // ===============================
+  const solicitarEmprestimo = async () => {
+    try {
+      const usuarioId = 1; 
+      const hoje = new Date();
+      const dataDevolucao = new Date();
+      dataDevolucao.setDate(hoje.getDate() + 15);
 
-    // Atualiza estado local pra refletir o novo status
-    setLivro((prev) => ({
-      ...prev,
-      data_devolucao: dataDevolucao
-    }));
+      await axios.post("http://localhost:3000/emprestimos/solicitar", {
+        id_livro: id,
+        id_usuario: usuarioId,
+        data_devolucao: dataDevolucao.toISOString().split("T")[0],
+      });
 
-    alert("Livro reservado com sucesso!");
-  } catch (err) {
-    console.error("Erro ao reservar livro:", err.response?.data || err.message);
-    alert(
-      "Não foi possível reservar o livro: " + (err.response?.data?.erro || err.message)
-    );
-  }
-};
+      setLivro((prev) => ({ ...prev, data_devolucao: dataDevolucao }));
+      alert("Livro reservado com sucesso!");
+    } catch (err) {
+      alert("Não foi possível reservar o livro.");
+      console.error(err);
+    }
+  };
 
+  // ===============================
+  // 📌 BUSCAR O LIVRO
+  // ===============================
   useEffect(() => {
     axios
       .get(`http://localhost:3000/livros/livroSinopse/${id}`)
@@ -71,6 +43,7 @@ const reservarLivro = async () => {
         if (!dados) return;
 
         let imagemBase64 = null;
+
         if (dados.imagem?.data) {
           const bytes = new Uint8Array(dados.imagem.data);
           let binary = "";
@@ -83,32 +56,10 @@ const reservarLivro = async () => {
       .catch((err) => console.error("Erro ao buscar livro:", err));
   }, [id]);
 
-  if (!livro) {
-    return (
-     <p
-  style={{
-    fontWeight: "bold",
-    color: livro?.data_devolucao ? "red" : "green",
-  }}
->
-  {livro?.data_devolucao
-    ? `📕 Livro indisponível — disponível em: ${new Date(
-        livro.data_devolucao
-      ).toLocaleDateString("pt-BR")}`
-    : "📗 Livro disponível"}
-</p>
+  if (!livro) return <p>Carregando...</p>;
 
-    );
-  }
-
-  const Editar = () => {
-    navigate(`/editar/${id}`);
-  };
-
-
-  const Comunidade = () => {
-    navigate(`/comunidade/${id}`);
-  };
+  const Editar = () => navigate(`/editar/${id}`);
+  const Comunidade = () => navigate(`/comunidade/${id}`);
 
   return (
     <Container>
@@ -128,22 +79,32 @@ const reservarLivro = async () => {
               <Titulo>SINOPSE</Titulo>
               <Descricao>"{livro.sinopse}"</Descricao>
 
-              
+              {/* =============================== */}
+              {/* ⭐ BOTÕES */}
+              {/* =============================== */}
               <SinopseEdit>
-           <Botao onClick={reservarLivro}>Reservar</Botao>
-            <BotaoEditar onClick={Editar}>Editar</BotaoEditar>
+                <Botao onClick={solicitarEmprestimo}>Reservar</Botao>
+
+                <BotaoEditar onClick={Editar}>Editar</BotaoEditar>
               </SinopseEdit>
-              <p style={{ fontWeight: "bold", color: livro.data_devolucao ? "red" : "green" }}>
-  {livro.data_devolucao
-    ? `Devolução prevista: ${new Date(livro.data_devolucao).toLocaleDateString("pt-BR")}`
-    : "Livro disponível"}
-</p>
+
+              <p
+                style={{
+                  fontWeight: "bold",
+                  color: livro.data_devolucao ? "red" : "green",
+                }}
+              >
+                {livro.data_devolucao
+                  ? `Devolução prevista: ${new Date(
+                      livro.data_devolucao
+                    ).toLocaleDateString("pt-BR")}`
+                  : "Livro disponível"}
+              </p>
             </TextContainer>
           </Grid>
 
           <ComuContainer>
             <ComuBotao onClick={Comunidade}>Comunidade</ComuBotao>
-   
           </ComuContainer>
         </Card>
       </Main>
@@ -151,25 +112,9 @@ const reservarLivro = async () => {
   );
 }
 
-const SinopseEdit = styled.div`
-    display: flex;
-    gap: 10px; 
-`;
-
-const BotaoEditar = styled.button`
-     padding: 12px 24px;
-  background: #27387f;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s;
-
-  &:hover {
-    background: #1d2b5c;
-  }
-`
+/* ========================================================= */
+/*                     STYLED COMPONENTS                     */
+/* ========================================================= */
 
 const Container = styled.div`
   background-color: #f3f4f6;
@@ -215,7 +160,6 @@ const Grid = styled.div`
 const ImageContainer = styled.div`
   display: flex;
   justify-content: center;
-  align-items: center;
 `;
 
 const Img = styled.img`
@@ -232,7 +176,6 @@ const Img = styled.img`
 `;
 
 const TextContainer = styled.div`
-  justify-self: center;
   margin-bottom: 30px;
 `;
 
@@ -249,11 +192,9 @@ const Descricao = styled.p`
   margin-bottom: 1rem;
 `;
 
-const Disponivel = styled.p`
-  color: red;
-  font-weight: bold;
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
+const SinopseEdit = styled.div`
+  display: flex;
+  gap: 10px;
 `;
 
 const Botao = styled.button`
@@ -265,7 +206,20 @@ const Botao = styled.button`
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.3s;
+  &:hover {
+    background: #1d2b5c;
+  }
+`;
 
+const BotaoEditar = styled.button`
+  padding: 12px 24px;
+  background: #27387f;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
   &:hover {
     background: #1d2b5c;
   }
@@ -286,7 +240,6 @@ const ComuBotao = styled.button`
   border: none;
   cursor: pointer;
   transition: background 0.3s;
-
   &:hover {
     background: #bfbfbf;
   }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import Fundo from "../../img/FundoLivros.webp";
 import { useNavigate, useParams } from "react-router-dom";
@@ -16,7 +16,6 @@ const GlobalStyle = createGlobalStyle`
     font-family: Arial, sans-serif;
   }
 `;
-
 const UploadBox = styled.div`
   width: 40%;
   height: 100%;
@@ -125,14 +124,11 @@ const PreviewImg = styled.img`
 const InputFile = styled.input`
   width: 100%;
   height: 100%;
-  opacity: 0;
+  opacity: 0; /* invisível mas clicável */
   cursor: pointer;
-  z-index: 2;
+  z-index: 2; /* fica por cima para continuar clicável */
 `;
 
-// ======================================================
-//   COMPONENTE PRINCIPAL
-// ======================================================
 
 export default function EditarLivro() {
   const { id } = useParams();
@@ -143,43 +139,8 @@ export default function EditarLivro() {
   const [autor, setAutor] = useState("");
   const [avaliacao, setAvaliacao] = useState("");
   const [imagem, setImagem] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState(null); // 🔹 variáveis adicionadas
 
-  // -----------------------------------------
-  // CARREGAR DADOS DO LIVRO AO ABRIR A PÁGINA
-  // -----------------------------------------
-  useEffect(() => {
-    async function carregarDados() {
-      try {
-        const resposta = await fetch(`http://localhost:3000/livros/${id}`);
-        const dados = await resposta.json();
-
-        if (!resposta.ok) {
-          alert("Erro ao carregar dados do livro");
-          return;
-        }
-
-        setNome(dados.nome || "");
-        setSinopse(dados.sinopse || "");
-        setAutor(dados.autor || "");
-        setAvaliacao(dados.avaliacao || "");
-
-        // Ajuste para imagem existente
-        if (dados.imagem) {
-          setPreview(`http://localhost:3000/uploads/${dados.imagem}`);
-        }
-
-      } catch (erro) {
-        console.error("Erro ao buscar dados:", erro);
-      }
-    }
-
-    carregarDados();
-  }, [id]);
-
-  // -----------------------------------------
-  // ENVIAR DADOS PARA API
-  // -----------------------------------------
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -191,13 +152,10 @@ export default function EditarLivro() {
       formData.append("avaliacao", avaliacao);
       if (imagem) formData.append("imagem", imagem);
 
-      const resposta = await fetch(
-        `http://localhost:3000/livros/atualizarlivros/${id}`,
-        {
-          method: "PUT",
-          body: formData,
-        }
-      );
+      const resposta = await fetch(`http://localhost:3000/livros/atualizarlivros/${id}`, {
+        method: "PUT",
+        body: formData,
+      });
 
       const dados = await resposta.json();
 
@@ -213,77 +171,67 @@ export default function EditarLivro() {
     }
   };
 
-  // -----------------------------------------
-  // RENDER
-  // -----------------------------------------
   return (
     <>
       <GlobalStyle />
       <Header>
         <Titulo>BOOKCLOUD</Titulo>
       </Header>
-
       <Container>
         <Card>
           <FormSection onSubmit={handleSubmit}>
-            <TituloForm>Editar Livro</TituloForm>
+  <TituloForm>Editar Livro</TituloForm>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-end",
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <Input
-                  type="text"
-                  placeholder="Nome do livro"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  required
-                />
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+    <div style={{ flex: 1 }}>
+      <Input
+        type="text"
+        placeholder="Nome do livro"
+        value={nome}
+        onChange={(e) => setNome(e.target.value)}
+        required
+      />
+      <TextArea
+        placeholder="Sinopse"
+        value={sinopse}
+        onChange={(e) => setSinopse(e.target.value)}
+        required
+      />
+      <Input
+        type="text"
+        placeholder="Autor"
+        value={autor}
+        onChange={(e) => setAutor(e.target.value)}
+      />
+      <Input
+        type="number"
+        placeholder="Avaliação (0 a 5)"
+        value={avaliacao}
+        onChange={(e) => setAvaliacao(e.target.value)}
+      />
+    </div>
 
-                <TextArea
-                  placeholder="Sinopse"
-                  value={sinopse}
-                  onChange={(e) => setSinopse(e.target.value)}
-                  required
-                />
+    <UploadBox>
+      {preview && <PreviewImg src={preview} alt="Pré-visualização" />}
+      <InputFile
+        type="file"
+        accept="image/*"
+        onChange={(e) => {
+          const file = e.target.files[0];
+          setImagem(file);
+          if (file) {
+            setPreview(URL.createObjectURL(file));
+          } else {
+            setPreview(null);
+          }
+        }}
+      />
+    </UploadBox>
+  </div>
 
-                <Input
-                  type="text"
-                  placeholder="Autor"
-                  value={autor}
-                  onChange={(e) => setAutor(e.target.value)}
-                />
+  <Botao>Atualizar</Botao>
+</FormSection>
 
-                <Input
-                  type="number"
-                  placeholder="Avaliação (0 a 5)"
-                  value={avaliacao}
-                  onChange={(e) => setAvaliacao(e.target.value)}
-                />
-              </div>
-
-              <UploadBox>
-                {preview && <PreviewImg src={preview} alt="Pré-visualização" />}
-                <InputFile
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    setImagem(file);
-                    if (file) {
-                      setPreview(URL.createObjectURL(file));
-                    }
-                  }}
-                />
-              </UploadBox>
-            </div>
-
-            <Botao>Atualizar</Botao>
-          </FormSection>
         </Card>
       </Container>
     </>

@@ -179,7 +179,6 @@ export default function Cadastro() {
               placeholder="Insira seu e-mail"
               type="email"
               value={email}
-
               onChange={(e) => setEmail(e.target.value)}
               required
             />

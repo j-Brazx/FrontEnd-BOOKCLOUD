@@ -63,6 +63,7 @@ const FundoModal = styled.div`
   align-items: center;
    z-index: 9998;
 `;
+
 const Modal = styled.form`
   background: #ffffffff;
   width: 300px;
@@ -72,7 +73,7 @@ const Modal = styled.form`
   text-align: center;
   font-weight: 800;
   font-size: 20px;
-    z-index: 9999;
+  z-index: 9999;
 `;
 
 const Botao = styled.button`
@@ -103,6 +104,7 @@ const H1 = styled.h1`
   font-weight: 800;
   font-size: 20px;
 `;
+
 const Label = styled.h1`
   font-weight: 800;
   font-size: 20px;
@@ -124,7 +126,7 @@ const Div = styled.div`
   border-radius: 15px;
   padding: 10px;
   position: relative;
-   transition: transform 0.25s ease-in-out;
+  transition: transform 0.25s ease-in-out;
 
   &:hover {
     transform: scale(1.1);
@@ -168,9 +170,10 @@ export default function Categorias() {
   const [categorias, setCategorias] = useState([]);
   const [livros, setLivros] = useState([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
-  const navigate = useNavigate();
   const [botaoSelecionado, setBotaoSelecionado] = useState(null);
+  const navigate = useNavigate();
 
+  // -------------------- BUSCAR CATEGORIAS E TODOS OS LIVROS --------------------
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
@@ -178,42 +181,43 @@ export default function Categorias() {
         const dados = await resposta.json();
         if (resposta.ok) {
           setCategorias(dados);
-        } else {
-          console.error("Erro ao buscar categorias:", dados.message);
         }
       } catch (erro) {
         console.error("Erro ao conectar à API:", erro);
       }
     };
-    fetchCategorias();
 
-    
-  const fetchTodosLivros = async () => {
-    try {
-      const resposta = await fetch("http://localhost:3000/livros/acervolivros");
-      const dados = await resposta.json();
+    const fetchTodosLivros = async () => {
+      try {
+        const resposta = await fetch("http://localhost:3000/livros/acervolivros");
+        const dados = await resposta.json();
 
-      if (resposta.ok) {
-        const livrosComImagem = dados.map((livro) => {
-          let imagemBase64 = null;
-          if (livro.imagem?.data) {
-            const bytes = new Uint8Array(livro.imagem.data);
-            let binary = "";
-            bytes.forEach((b) => (binary += String.fromCharCode(b)));
-            imagemBase64 = `data:image/jpeg;base64,${btoa(binary)}`;
-          }
-          return { ...livro, imagem: imagemBase64 };
-        });
+        if (resposta.ok) {
+          const livrosComImagem = dados.map((livro) => {
+            let imagemBase64 = null;
 
-        setLivros(livrosComImagem);
+            if (livro.imagem?.data) {
+              const bytes = new Uint8Array(livro.imagem.data);
+              let binary = "";
+              bytes.forEach((b) => (binary += String.fromCharCode(b)));
+              imagemBase64 = `data:image/jpeg;base64,${btoa(binary)}`;
+            }
+
+            return { ...livro, imagem: imagemBase64 };
+          });
+
+          setLivros(livrosComImagem);
+        }
+      } catch (erro) {
+        console.error("Erro ao buscar todos os livros:", erro);
       }
-    } catch (erro) {
-      console.error("Erro ao buscar todos os livros:", erro);
-    }
-  };
-    fetchTodosLivros()
+    };
+
+    fetchCategorias();
+    fetchTodosLivros();
   }, []);
 
+  // -------------------- ADICIONAR CATEGORIA --------------------
   const execSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -222,9 +226,7 @@ export default function Categorias() {
     try {
       const resposta = await fetch("http://localhost:3000/categorias/adicionar", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome_categoria, descricao }),
       });
 
@@ -247,112 +249,115 @@ export default function Categorias() {
     }
   };
 
+  // -------------------- CARREGAR LIVROS POR CATEGORIA --------------------
   const fetchLivros = async (categoriaId) => {
-  try {
-    const resposta = await fetch(
-      `http://localhost:3000/livros/livrosporcat/${categoriaId}`
-    );
-    const dados = await resposta.json();
+    try {
+      const resposta = await fetch(
+        `http://localhost:3000/livros/livrosporcat/${categoriaId}`
+      );
+      const dados = await resposta.json();
 
-    if (resposta.ok) {
-    
-      const livrosComImagem = dados.map((livro) => {
-        let imagemBase64 = null;
+      if (resposta.ok) {
+        const livrosComImagem = dados.map((livro) => {
+          let imagemBase64 = null;
 
-        if (livro.imagem?.data) {
-          const bytes = new Uint8Array(livro.imagem.data);
-          let binary = "";
-          bytes.forEach((b) => (binary += String.fromCharCode(b)));
-          imagemBase64 = `data:image/jpeg;base64,${btoa(binary)}`;
-        }
+          if (livro.imagem?.data) {
+            const bytes = new Uint8Array(livro.imagem.data);
+            let binary = "";
+            bytes.forEach((b) => (binary += String.fromCharCode(b)));
+            imagemBase64 = `data:image/jpeg;base64,${btoa(binary)}`;
+          }
 
-        return {
-          ...livro,
-          imagem: imagemBase64, 
-          
-        };
-      });
-      
-      setLivros(livrosComImagem);
-      setCategoriaSelecionada(categoriaId);
+          return { ...livro, imagem: imagemBase64 };
+        });
+
+        setLivros(livrosComImagem);
+        setCategoriaSelecionada(categoriaId);
+      }
+    } catch (erro) {
+      console.error("Erro ao buscar livros:", erro);
     }
-  } catch (erro) {
-    console.error("Erro ao buscar livros:", erro);
-  }
-};
-
+  };
 
   return (
     <Container>
       <ColunaCategoria>
         <BtnAdicionar onClick={() => setModal(true)}>Adicionar</BtnAdicionar>
+
         <NomeCat>
           {categorias.map((cat) => (
-  <Cat
-    key={cat.id}
-    selecionado={botaoSelecionado === cat.id}
-    onClick={() => {setBotaoSelecionado(cat.id);
-  fetchLivros(cat.id);}}
-  >
-    {cat.nome_categoria}
-  </Cat>
-))}
+            <Cat
+              key={cat.id}
+              selecionado={botaoSelecionado === cat.id}
+              onClick={() => {
+                setBotaoSelecionado(cat.id);
+                fetchLivros(cat.id);
+              }}
+            >
+              {cat.nome_categoria}
+            </Cat>
+          ))}
         </NomeCat>
+
         {ModalOpen && (
           <FundoModal onClick={() => setModal(false)}>
             <Modal onClick={(e) => e.stopPropagation()} onSubmit={execSubmit}>
               <H1>Nova Categoria</H1>
+
               <Label htmlFor="nome">Nome</Label>
               <Input
                 type="text"
                 id="nome_categoria"
-                name="nome_categoria"
                 value={nome_categoria}
                 onChange={(e) => setNome(e.target.value)}
                 placeholder="Insira o nome da Categoria"
                 required
               />
+
               <Label htmlFor="descricao">Descrição</Label>
               <Input
                 style={{ height: "60px" }}
                 type="text"
                 id="descricao"
-                name="descricao"
                 value={descricao}
                 onChange={(e) => setDescricao(e.target.value)}
                 placeholder="Insira a descrição da categoria"
                 required
               />
+
               <Botao type="submit">Adicionar</Botao>
             </Modal>
           </FundoModal>
         )}
       </ColunaCategoria>
 
-  <ContainerLivros>
-      {categoriaSelecionada && (
-        <div>
-          <h2 style={{marginLeft: 20}}>
-            Livros do Gênero:{" "}
-            {categorias.find((c) => c.id === categoriaSelecionada)?.nome_categoria}
+      {/* ---------------- PAINEL AZUL: SEMPRE MOSTRA LIVROS ---------------- */}
+      <ContainerLivros>
+        <div style={{ width: "100%" }}>
+          <h2 style={{ marginLeft: 20 }}>
+            {categoriaSelecionada
+              ? `Livros do Gênero: ${
+                  categorias.find((c) => c.id === categoriaSelecionada)
+                    ?.nome_categoria
+                }`
+              : ""}
           </h2>
 
           <ListaLivros>
             {livros.length > 0 ? (
               livros.map((livro) => (
                 <Div key={livro.id}>
-      {livro.imagem && (
-        <Img src={livro.imagem} alt={livro.nome} />
-      )}
-
-      <StatusCircle livre={livro.status === "livre"} />
-    </Div>
+                  {livro.imagem && (
+                    <Img src={livro.imagem} alt={livro.nome} />
+                  )}
+                  <StatusCircle livre={livro.status === "livre"} />
+                </Div>
               ))
             ) : (
-              <p>Nenhum livro encontrado nesta categoria.</p>
+              <p>Nenhum livro encontrado.</p>
             )}
-          </ListaLivros></div>
-      )}
+          </ListaLivros>
+        </div>
       </ContainerLivros>
     </Container>
   );

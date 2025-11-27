@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -8,7 +8,6 @@ const Container = styled.div`
   padding-top: 40px;
 `;
 
-// Caixa principal do painel
 const DashboardBox = styled.div`
   background: white;
   border: 2px solid #d0d0ff;
@@ -31,7 +30,6 @@ const DateBox = styled.div`
   font-size: 0.9rem;
 `;
 
-// Container com os cards lado a lado
 const StatsRow = styled.div`
   display: flex;
   justify-content: space-around;
@@ -63,29 +61,6 @@ const StatCard = styled.div`
   }
 `;
 
-const CircleCard = styled.div`
-  background: #4b578e;
-  color: white;
-  border-radius: 50%;
-  width: 110px;
-  height: 110px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  text-align: center;
-
-  p {
-    font-size: 0.9rem;
-    margin: 0;
-  }
-
-  h2 {
-    margin: 3px 0 0 0;
-  }
-`;
-
 const GenreBox = styled.div`
   background: #1f3b8c;
   color: white;
@@ -99,42 +74,76 @@ const GenreBox = styled.div`
 `;
 
 export default function Painel() {
+  const [emprestados, setEmprestados] = useState(0);
+  const [disponiveis, setDisponiveis] = useState(0);
+  const [usuarios, setUsuarios] = useState(0);
+  const [generoMaiorAcervo, setGeneroMaiorAcervo] = useState("Carregando...");
+  const [totalLivros, setTotalLivros] = useState(0);
+
+  useEffect(() => {
+    const api = "http://localhost:3000"; // ajuste conforme sua porta
+
+    fetch(`${api}/livros/emprestados`)
+      .then((res) => res.json())
+      .then((data) => setEmprestados(data.length))
+      .catch(() => setEmprestados(0));
+
+    fetch(`${api}/livros/disponiveis`)
+      .then((res) => res.json())
+      .then((data) => setDisponiveis(data.length))
+      .catch(() => setDisponiveis(0));
+
+    fetch(`${api}/usuarios/selecionarTodos`)
+      .then((res) => res.json())
+      .then((data) => setUsuarios(data.length))
+      .catch(() => setUsuarios(0));
+
+    fetch(`${api}/categorias/maiorAcervo`)
+      .then((res) => res.json())
+      .then((data) =>
+        setGeneroMaiorAcervo(data?.nome_categoria || "Nenhum gênero encontrado")
+      )
+      .catch(() => setGeneroMaiorAcervo("Erro ao carregar"));
+
+  }, []);
+
+  useEffect(() => {
+    setTotalLivros(disponiveis + emprestados);
+  }, [disponiveis, emprestados]);
+
+  const dataAtual = new Date().toLocaleDateString("pt-BR");
+
   return (
     <Container>
       <DashboardBox>
-        <DateBox>05/05/2025</DateBox>
+        <DateBox>{dataAtual}</DateBox>
 
         <StatsRow>
           <StatCard bg="#2b6ea6">
-            <p>Livros no estoque</p>
-            <h2>1500</h2>
+            <p>Livros no acervo</p>
+            <h2>{totalLivros}</h2>
           </StatCard>
 
           <StatCard bg="#4a238b">
             <p>Livros emprestados</p>
-            <h2>20</h2>
+            <h2>{emprestados}</h2>
           </StatCard>
 
           <StatCard bg="#1b7b83">
-            <p>Atrasos</p>
-            <h2>05</h2>
+            <p>Livros disponíveis</p>
+            <h2>{disponiveis}</h2>
           </StatCard>
 
           <StatCard bg="#671d88">
-            <p>Novos usuários</p>
-            <h2>14</h2>
+            <p>Total de usuários</p>
+            <h2>{usuarios}</h2>
           </StatCard>
-
-          <CircleCard>
-            <p>Novos livros</p>
-            <h2>20</h2>
-          </CircleCard>
         </StatsRow>
 
         <GenreBox>
-          Gênero de maior empréstimo
+          Gênero com maior acervo
           <br />
-          <span style={{ fontSize: "1.8rem" }}>SUSPENSE</span>
+          <span style={{ fontSize: "1.8rem" }}>{generoMaiorAcervo}</span>
         </GenreBox>
       </DashboardBox>
     </Container>
