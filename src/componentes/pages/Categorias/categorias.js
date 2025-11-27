@@ -334,15 +334,6 @@ export default function Categorias() {
       {/* ---------------- PAINEL AZUL: SEMPRE MOSTRA LIVROS ---------------- */}
       <ContainerLivros>
         <div style={{ width: "100%" }}>
-          <h2 style={{ marginLeft: 20 }}>
-            {categoriaSelecionada
-              ? `Livros do Gênero: ${
-                  categorias.find((c) => c.id === categoriaSelecionada)
-                    ?.nome_categoria
-                }`
-              : ""}
-          </h2>
-
           <ListaLivros>
             {livros.length > 0 ? (
               livros.map((livro) => (

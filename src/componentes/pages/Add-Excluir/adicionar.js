@@ -115,7 +115,6 @@ const Botao = styled.button`
 
   &:hover {
     background: #1d2b5c;
- 84f9b33c58db6c543ae0c218c2ad571f58af0c58
   }
 `;
 
