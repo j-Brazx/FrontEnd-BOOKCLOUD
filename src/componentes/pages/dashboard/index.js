@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
@@ -37,7 +38,6 @@ const StatsRow = styled.div`
   flex-wrap: nowrap;
   gap: 20px;
   margin-top: 20px;
-  flex: 1;
 `;
 
 const StatCard = styled.div`
@@ -73,20 +73,72 @@ const GenreBox = styled.div`
   max-width: 400px;
 `;
 
+/* LISTA DE EMPRESTADOS */
+const ListaEmprestados = styled.div`
+  margin-top: 30px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 2px solid #d0d0ff;
+`;
+
+const LivroCard = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #eef1ff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border-left: 5px solid #27387f;
+`;
+
+const NomeLivro = styled.span`
+  font-weight: bold;
+  font-size: 1rem;
+  color: #27387f;
+`;
+
+const BtnDevolver = styled.button`
+  background: #27387f;
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background: #1d2e63;
+  }
+`;
+
 export default function Painel() {
-  const [emprestados, setEmprestados] = useState(0);
+  const [emprestados, setEmprestados] = useState([]);
   const [disponiveis, setDisponiveis] = useState(0);
   const [usuarios, setUsuarios] = useState(0);
   const [generoMaiorAcervo, setGeneroMaiorAcervo] = useState("Carregando...");
   const [totalLivros, setTotalLivros] = useState(0);
 
-  useEffect(() => {
-    const api = "http://localhost:3000"; // ajuste conforme sua porta
+  const api = "http://localhost:3000";
 
-    fetch(`${api}/livros/emprestados`)
-      .then((res) => res.json())
-      .then((data) => setEmprestados(data.length))
-      .catch(() => setEmprestados(0));
+  /* =======================
+       CARREGAR EMPRESTADOS
+  ======================= */
+  const carregarEmprestimos = async () => {
+    try {
+      const res = await fetch(`${api}/livros/emprestados`);
+      const data = await res.json();
+      setEmprestados(data);
+    } catch (e) {
+      console.error("Erro ao carregar empréstimos:", e);
+    }
+  };
+
+  /* =======================
+       BUSCAR DADOS INICIAIS
+  ======================= */
+  useEffect(() => {
+    carregarEmprestimos();
 
     fetch(`${api}/livros/disponiveis`)
       .then((res) => res.json())
@@ -104,12 +156,44 @@ export default function Painel() {
         setGeneroMaiorAcervo(data?.nome_categoria || "Nenhum gênero encontrado")
       )
       .catch(() => setGeneroMaiorAcervo("Erro ao carregar"));
-
   }, []);
 
   useEffect(() => {
-    setTotalLivros(disponiveis + emprestados);
+    setTotalLivros(disponiveis + emprestados.length);
   }, [disponiveis, emprestados]);
+
+  /* ======================
+       DEVOLVER LIVRO
+  ====================== */
+  const devolverLivro = async (id_emprestimo) => {
+    console.log("Tentando devolver empréstimo ID:", id_emprestimo); // DEBUG
+
+    if (!id_emprestimo) {
+      alert("ID do empréstimo inválido!");
+      return;
+    }
+
+    try {
+      const resposta = await fetch(
+        `http://localhost:3000/emprestimos/devolver/${id_emprestimo}`,
+        {
+          method: "POST",
+        }
+      );
+
+      const dados = await resposta.json();
+
+      if (resposta.ok) {
+        alert("Livro devolvido com sucesso!");
+        carregarEmprestimos(); // atualiza lista
+      } else {
+        alert(dados.message || "Erro ao devolver livro");
+      }
+    } catch (erro) {
+      console.error("Erro ao devolver livro:", erro);
+      alert("Erro ao conectar ao servidor");
+    }
+  };
 
   const dataAtual = new Date().toLocaleDateString("pt-BR");
 
@@ -126,7 +210,7 @@ export default function Painel() {
 
           <StatCard bg="#4a238b">
             <p>Livros emprestados</p>
-            <h2>{emprestados}</h2>
+            <h2>{emprestados.length}</h2>
           </StatCard>
 
           <StatCard bg="#1b7b83">
@@ -145,6 +229,25 @@ export default function Painel() {
           <br />
           <span style={{ fontSize: "1.8rem" }}>{generoMaiorAcervo}</span>
         </GenreBox>
+
+        {/* LISTA DE LIVROS EMPRESTADOS */}
+        <ListaEmprestados>
+          <h2 style={{ color: "#27387f" }}>Livros Emprestados</h2>
+
+          {emprestados.length === 0 ? (
+            <p>Nenhum livro emprestado.</p>
+          ) : (
+            emprestados.map((livro) => (
+              <LivroCard key={livro.id}>
+                <NomeLivro>{livro.nome}</NomeLivro>
+                {/* Enviando ID do empréstimo, não do livro */}
+                <BtnDevolver onClick={() => devolverLivro(livro.id)}>
+                  Devolver
+                </BtnDevolver>
+              </LivroCard>
+            ))
+          )}
+        </ListaEmprestados>
       </DashboardBox>
     </Container>
   );

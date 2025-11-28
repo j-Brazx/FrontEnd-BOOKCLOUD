@@ -8,12 +8,9 @@ export default function Sinopse() {
   const [livro, setLivro] = useState(null);
   const navigate = useNavigate();
 
-  // ===============================
-  // 📌 FUNÇÃO DE EMPRESTAR LIVRO
-  // ===============================
   const solicitarEmprestimo = async () => {
     try {
-      const usuarioId = 1; 
+      const usuarioId = 1;
       const hoje = new Date();
       const dataDevolucao = new Date();
       dataDevolucao.setDate(hoje.getDate() + 15);
@@ -32,10 +29,8 @@ export default function Sinopse() {
     }
   };
 
-  // ===============================
-  // 📌 BUSCAR O LIVRO
-  // ===============================
   useEffect(() => {
+    // pegar dados do livro
     axios
       .get(`http://localhost:3000/livros/livroSinopse/${id}`)
       .then((res) => {
@@ -54,6 +49,27 @@ export default function Sinopse() {
         setLivro({ ...dados, imagem: imagemBase64 });
       })
       .catch((err) => console.error("Erro ao buscar livro:", err));
+
+    // 🔥 AGORA BUSCA A DATA DE DEVOLUÇÃO DO EMPRÉSTIMO
+    axios
+      .get(`http://localhost:3000/emprestimos/devolucao/${id}`)
+      .then((res) => {
+        if (res.data?.data_devolucao) {
+          setLivro((prev) => ({
+            ...prev,
+            data_devolucao: res.data.data_devolucao,
+            status: "ocupado",
+          }));
+        }
+      })
+      .catch(() => {
+        // Se não tiver empréstimo, garante que livro está livre
+        setLivro((prev) => ({
+          ...prev,
+          status: "livre",
+          data_devolucao: null,
+        }));
+      });
   }, [id]);
 
   if (!livro) return <p>Carregando...</p>;
@@ -79,9 +95,6 @@ export default function Sinopse() {
               <Titulo>SINOPSE</Titulo>
               <Descricao>"{livro.sinopse}"</Descricao>
 
-              {/* =============================== */}
-              {/* ⭐ BOTÕES */}
-              {/* =============================== */}
               <SinopseEdit>
                 <Botao onClick={solicitarEmprestimo}>Reservar</Botao>
 
@@ -91,14 +104,13 @@ export default function Sinopse() {
               <p
                 style={{
                   fontWeight: "bold",
-                  color: livro.data_devolucao ? "red" : "green",
+                  color: livro.status === "livre" ? "green" : "red",
                 }}
               >
-                {livro.data_devolucao
-                  ? `Devolução prevista: ${new Date(
-                      livro.data_devolucao
-                    ).toLocaleDateString("pt-BR")}`
-                  : "Livro disponível"}
+                {livro.status === "livre"
+                  ? "Disponível"
+                  : `Emprestado 
+                    `}
               </p>
             </TextContainer>
           </Grid>
@@ -111,10 +123,6 @@ export default function Sinopse() {
     </Container>
   );
 }
-
-/* ========================================================= */
-/*                     STYLED COMPONENTS                     */
-/* ========================================================= */
 
 const Container = styled.div`
   background-color: #f3f4f6;

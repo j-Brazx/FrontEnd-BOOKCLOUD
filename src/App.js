@@ -18,7 +18,7 @@ import Sinopse from "./componentes/pages/Sinopse";
 import Acervo from "./componentes/pages/acervo";
 import Painel from "./componentes/pages/dashboard";
 import Comunidade from "./componentes/pages/Comunidade/comunidade";
-import Excluir from "./componentes/pages/Add-Excluir/excluir"
+import Excluir from "./componentes/pages/Add-Excluir/excluir";
 import Editar from "./componentes/pages/Editar/editar"
 
 function Layout({ children }) {
