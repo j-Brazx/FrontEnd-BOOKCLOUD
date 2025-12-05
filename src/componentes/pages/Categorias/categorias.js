@@ -16,8 +16,8 @@ const ColunaCategoria = styled.div`
 `;
 
 const BtnAdicionar = styled.button`
-  width: 200px;         
-  gap: 10px; 
+  width: 200px;
+  gap: 10px;
   background: #27387f;
   color: white;
   font-size: 22px;
@@ -32,8 +32,8 @@ const BtnAdicionar = styled.button`
 `;
 
 const NomeCat = styled.div`
-  display: flex;           
-  flex-direction: column;          
+  display: flex;
+  flex-direction: column;
 `;
 
 const Cat = styled.button`
@@ -42,11 +42,11 @@ const Cat = styled.button`
   color: ${(props) => (props.selecionado ? "#27387f" : "#ffffffff")};
   font-size: 22px;
   border: ${(props) => (props.selecionado ? "3px solid #27387f" : "none")};
-  padding: 10px;               
-  margin-bottom: 10px;   
-  margin-left: 10px;    
+  padding: 10px;
+  margin-bottom: 10px;
+  margin-left: 10px;
   cursor: pointer;
-  
+
   &:hover {
     background: #1d2b5c;
   }
@@ -61,7 +61,7 @@ const FundoModal = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-   z-index: 9998;
+  z-index: 9998;
 `;
 
 const Modal = styled.form`
@@ -143,7 +143,7 @@ const Img = styled.img`
 const ContainerLivros = styled.div`
   width: 75vw;
   height: 100%;
-  margin-left:5%;
+  margin-left: 5%;
   display: flex;
   flex-wrap: wrap;
   min-height: 60vh;
@@ -153,12 +153,12 @@ const ContainerLivros = styled.div`
 
 const StatusCircle = styled.div`
   width: 40px;
-  height: 40px; 
+  height: 40px;
   border-radius: 50%;
   background-color: ${(props) => (props.livre ? "#34ba3a" : "#ce1f22")};
   position: absolute;
-  bottom: 25px;   
-  left: 135px;  
+  bottom: 25px;
+  left: 135px;
 `;
 
 export default function Categorias() {
@@ -179,7 +179,9 @@ export default function Categorias() {
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
-        const resposta = await fetch("http://localhost:3000/categorias/selecionar");
+        const resposta = await fetch(
+          "http://localhost:3000/categorias/selecionar"
+        );
         const dados = await resposta.json();
         if (resposta.ok) {
           setCategorias(dados);
@@ -191,7 +193,9 @@ export default function Categorias() {
 
     const fetchTodosLivros = async () => {
       try {
-        const resposta = await fetch("http://localhost:3000/livros/acervolivros");
+        const resposta = await fetch(
+          "http://localhost:3000/livros/acervolivros"
+        );
         const dados = await resposta.json();
 
         if (resposta.ok) {
@@ -226,11 +230,14 @@ export default function Categorias() {
     setErro("");
 
     try {
-      const resposta = await fetch("http://localhost:3000/categorias/adicionar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome_categoria, descricao }),
-      });
+      const resposta = await fetch(
+        "http://localhost:3000/categorias/adicionar",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nome_categoria, descricao }),
+        }
+      );
 
       const dados = await resposta.json();
 
@@ -284,9 +291,9 @@ export default function Categorias() {
   return (
     <Container>
       <ColunaCategoria>
-         {role === "bibliotecário" && ( 
+        {role === "bibliotecário" && (
           <BtnAdicionar onClick={() => setModal(true)}>Adicionar</BtnAdicionar>
-         )}
+        )}
         <NomeCat>
           {categorias.map((cat) => (
             <Cat
@@ -340,10 +347,11 @@ export default function Categorias() {
           <ListaLivros>
             {livros.length > 0 ? (
               livros.map((livro) => (
-                <Div key={livro.id} onClick={() => navigate(`/sinopse/${livro.id}`)}>
-                  {livro.imagem && (
-                    <Img src={livro.imagem} alt={livro.nome} />
-                  )}
+                <Div
+                  key={livro.id}
+                  onClick={() => navigate(`/sinopse/${livro.id}`)}
+                >
+                  {livro.imagem && <Img src={livro.imagem} alt={livro.nome} />}
                   <StatusCircle livre={livro.status === "livre"} />
                 </Div>
               ))

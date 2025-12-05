@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfileCard() {
   const [usuario, setUsuario] = useState({ nome: "", email: "" });
+    const navigate = useNavigate();
 
   useEffect(() => {
     const dados = localStorage.getItem("usuario");
@@ -31,7 +33,9 @@ export default function ProfileCard() {
         <UserInfo>
           <Nome>{usuario?.nome?.trim() || "Usuário Desconhecido"}</Nome>
           <Email>{usuario?.email || "email@exemplo.com"}</Email>
+           <Botao onClick={() => navigate("/")}>Sair</Botao>
         </UserInfo>
+       
       </Card>
       <Linha />
     </>
@@ -39,6 +43,20 @@ export default function ProfileCard() {
 }
 
 /* =================== ESTILOS =================== */
+
+const Botao = styled.button`
+  padding: 12px 24px;
+  background: #27387f;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  &:hover {
+    background: #1d2b5c;
+  }
+`;
 
 const Card = styled.div`
   background: white;
