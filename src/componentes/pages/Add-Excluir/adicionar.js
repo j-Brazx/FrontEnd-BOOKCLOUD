@@ -196,7 +196,6 @@ export default function Cadastro() {
     if (imagem) formData.append("imagem", imagem);
     formData.append("id_categoria", id_categoria);
 
-    alert("FormData a ser enviado:", formData);
 
     const resposta = await fetch(
       "http://localhost:3000/livros/cadastrarLivros",

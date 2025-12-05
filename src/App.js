@@ -20,13 +20,15 @@ import Painel from "./componentes/pages/dashboard";
 import Comunidade from "./componentes/pages/Comunidade/comunidade";
 import Excluir from "./componentes/pages/Add-Excluir/excluir";
 import Editar from "./componentes/pages/Editar/editar"
+import { matchPath } from "react-router-dom";
 
 function Layout({ children }) {
   const location = useLocation();
 
   const noHeaderFooterRoutes = ["/login", "/criar", "/", "/cadastrar-livro", "/editar/:id", "/excluir"];
-
-  const hideHeaderFooter = noHeaderFooterRoutes.includes(location.pathname);
+  const hideHeaderFooter =
+  noHeaderFooterRoutes.includes(location.pathname) ||
+  matchPath("/editar/:id", location.pathname);
 
   return (
     <>
