@@ -99,16 +99,17 @@ const Menu = styled.div`
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-   const navigate = useNavigate();
+  const navigate = useNavigate();
 
+  const role = localStorage.getItem("role"); // <── pega o papel do usuário
   return (
     <HeaderContainer>
 
-    <Titulo>BOOKCLOUD</Titulo>
+      <Titulo>BOOKCLOUD</Titulo>
+
       <Menu onClick={() => setMenuOpen(!menuOpen)}>
         {menuOpen ? <FiX size={28} /> : <FiMenu size={28} />}
       </Menu>
-
 
       <Nav open={menuOpen}>
         <Links to="/inicio" onClick={() => setMenuOpen(false)}>
@@ -120,19 +121,21 @@ export default function Header() {
         <Links to="/acervo" onClick={() => setMenuOpen(false)}>
           Acervo
         </Links>
-        <Links to="/painel" onClick={() => setMenuOpen(false)}>
-          Painel
-        </Links>
-        <Links to="/clientes" onClick={() => setMenuOpen(false)}>
-          Clientes
-        </Links>
+       
+        {role === "bibliotecário" && (
+          <>
+            <Links to="/painel" onClick={() => setMenuOpen(false)}>
+              Painel
+            </Links>
+            <Links to="/clientes" onClick={() => setMenuOpen(false)}>
+              Clientes
+            </Links>
+          </>
+        )}
       </Nav>
-
-      <SearchBox>
-        <SearchInput type="text" placeholder="Pesquisar..." />
-      </SearchBox>
 
       <Perfil onClick={() => navigate("/perfil")}>P</Perfil>
     </HeaderContainer>
   );
 }
+

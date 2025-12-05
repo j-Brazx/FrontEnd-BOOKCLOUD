@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
@@ -7,6 +6,8 @@ const Container = styled.div`
   background: #f4f4f4;
   min-height: 100vh;
   padding-top: 40px;
+  padding-left: 10px;
+  padding-right: 10px;
 `;
 
 const DashboardBox = styled.div`
@@ -14,8 +15,8 @@ const DashboardBox = styled.div`
   border: 2px solid #d0d0ff;
   border-radius: 10px;
   margin: 0 auto;
-  padding: 20px 40px;
-  width: 90%;
+  padding: 20px 20px;
+  max-width: 1200px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -35,7 +36,7 @@ const StatsRow = styled.div`
   display: flex;
   justify-content: space-around;
   align-items: center;
-  flex-wrap: nowrap;
+  flex-wrap: wrap; /* permite quebrar linha em telas pequenas */
   gap: 20px;
   margin-top: 20px;
 `;
@@ -44,9 +45,10 @@ const StatCard = styled.div`
   background: ${(props) => props.bg || "#ccc"};
   color: white;
   text-align: center;
-  padding: 20px 30px;
+  padding: 20px 20px;
   border-radius: 10px;
-  min-width: 180px;
+  min-width: 150px;
+  width: 22%;
   height: 100px;
   display: flex;
   flex-direction: column;
@@ -59,6 +61,15 @@ const StatCard = styled.div`
   h2 {
     margin: 5px 0 0 0;
   }
+
+  @media (max-width: 768px) {
+    width: 45%; /* 2 por linha em tablet */
+    margin-bottom: 10px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%; /* 1 por linha em mobile */
+  }
 `;
 
 const GenreBox = styled.div`
@@ -66,14 +77,13 @@ const GenreBox = styled.div`
   color: white;
   text-align: center;
   margin: 25px auto 10px auto;
-  padding: 15px 40px;
+  padding: 15px 20px;
   border-radius: 10px;
   font-size: 1.2rem;
   font-weight: bold;
   max-width: 400px;
 `;
 
-/* LISTA DE EMPRESTADOS */
 const ListaEmprestados = styled.div`
   margin-top: 30px;
   padding: 20px;
@@ -91,12 +101,14 @@ const LivroCard = styled.div`
   border-radius: 8px;
   margin-bottom: 10px;
   border-left: 5px solid #27387f;
+  flex-wrap: wrap;
 `;
 
 const NomeLivro = styled.span`
   font-weight: bold;
   font-size: 1rem;
   color: #27387f;
+  flex: 1 1 60%; /* ocupa 60% do espaço */
 `;
 
 const BtnDevolver = styled.button`
@@ -106,9 +118,15 @@ const BtnDevolver = styled.button`
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  flex: 1 1 30%; /* ocupa 30% do espaço */
 
   &:hover {
     background: #1d2e63;
+  }
+
+  @media (max-width: 480px) {
+    margin-top: 8px;
+    width: 100%;
   }
 `;
 
@@ -121,9 +139,6 @@ export default function Painel() {
 
   const api = "http://localhost:3000";
 
-  /* =======================
-       CARREGAR EMPRESTADOS
-  ======================= */
   const carregarEmprestimos = async () => {
     try {
       const res = await fetch(`${api}/livros/emprestados`);
@@ -134,9 +149,6 @@ export default function Painel() {
     }
   };
 
-  /* =======================
-       BUSCAR DADOS INICIAIS
-  ======================= */
   useEffect(() => {
     carregarEmprestimos();
 
@@ -162,30 +174,19 @@ export default function Painel() {
     setTotalLivros(disponiveis + emprestados.length);
   }, [disponiveis, emprestados]);
 
-  /* ======================
-       DEVOLVER LIVRO
-  ====================== */
   const devolverLivro = async (id_emprestimo) => {
-    console.log("Tentando devolver empréstimo ID:", id_emprestimo); // DEBUG
-
-    if (!id_emprestimo) {
-      alert("ID do empréstimo inválido!");
-      return;
-    }
+    if (!id_emprestimo) return alert("ID do empréstimo inválido!");
 
     try {
       const resposta = await fetch(
-        `http://localhost:3000/emprestimos/devolver/${id_emprestimo}`,
-        {
-          method: "POST",
-        }
+        `${api}/emprestimos/devolver/${id_emprestimo}`,
+        { method: "POST" }
       );
-
       const dados = await resposta.json();
 
       if (resposta.ok) {
         alert("Livro devolvido com sucesso!");
-        carregarEmprestimos(); // atualiza lista
+        carregarEmprestimos();
       } else {
         alert(dados.message || "Erro ao devolver livro");
       }
@@ -230,7 +231,6 @@ export default function Painel() {
           <span style={{ fontSize: "1.8rem" }}>{generoMaiorAcervo}</span>
         </GenreBox>
 
-        {/* LISTA DE LIVROS EMPRESTADOS */}
         <ListaEmprestados>
           <h2 style={{ color: "#27387f" }}>Livros Emprestados</h2>
 
@@ -240,7 +240,6 @@ export default function Painel() {
             emprestados.map((livro) => (
               <LivroCard key={livro.id}>
                 <NomeLivro>{livro.nome}</NomeLivro>
-                {/* Enviando ID do empréstimo, não do livro */}
                 <BtnDevolver onClick={() => devolverLivro(livro.id)}>
                   Devolver
                 </BtnDevolver>

@@ -79,7 +79,7 @@ export default function Acervo() {
   return (
     <Container>
       {livros.map((livro) => (
-        <Div key={livro.id}>
+        <Div key={livro.id} onClick={() => navigate(`/sinopse/${livro.id}`)}>
           {livro.imagem && <Img src={livro.imagem} alt={livro.nome} />}
 
           <StatusCircle livre={livro.status === "livre"} />

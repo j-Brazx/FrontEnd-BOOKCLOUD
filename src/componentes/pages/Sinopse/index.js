@@ -7,10 +7,13 @@ export default function Sinopse() {
   const { id } = useParams();
   const [livro, setLivro] = useState(null);
   const navigate = useNavigate();
+  const role = localStorage.getItem("role");
+    const id_atual = localStorage.getItem("id");
+
 
   const solicitarEmprestimo = async () => {
     try {
-      const usuarioId = 1;
+      const usuarioId = id_atual;
       const hoje = new Date();
       const dataDevolucao = new Date();
       dataDevolucao.setDate(hoje.getDate() + 15);
@@ -97,8 +100,8 @@ export default function Sinopse() {
 
               <SinopseEdit>
                 <Botao onClick={solicitarEmprestimo}>Reservar</Botao>
-
-                <BotaoEditar onClick={Editar}>Editar</BotaoEditar>
+ {role === "bibliotecário" && ( 
+                <BotaoEditar onClick={Editar}>Editar</BotaoEditar>)}
               </SinopseEdit>
 
               <p
@@ -115,9 +118,7 @@ export default function Sinopse() {
             </TextContainer>
           </Grid>
 
-          <ComuContainer>
-            <ComuBotao onClick={Comunidade}>Comunidade</ComuBotao>
-          </ComuContainer>
+          
         </Card>
       </Main>
     </Container>

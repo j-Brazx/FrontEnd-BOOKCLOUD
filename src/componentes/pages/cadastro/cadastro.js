@@ -122,7 +122,6 @@ export default function Cadastro() {
       setErro("");
 
       try {
-        alert("TRY");
         const resposta = await fetch("http://localhost:3000/usuarios/criar", {
           method: "POST",
           headers: {

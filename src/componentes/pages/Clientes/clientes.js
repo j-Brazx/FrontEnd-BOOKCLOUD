@@ -1,60 +1,90 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-`;
+export default function App() {
+  const [dados, setDados] = useState([]);
 
-const Thead = styled.thead`
-  background-color: #1e3a8a; /* Azul */
-  color: white;
-`;
+  const Table = styled.table`
+    width: 100%;
+    border-collapse: collapse;
+  `;
 
-const Th = styled.th`
-  padding: 10px;
-  border: 1px solid #ccc;
-  text-align: left;
-`;
+  const Thead = styled.thead`
+    background-color: #1e3a8a;
+    color: white;
+  `;
 
-const Tbody = styled.tbody``;
+  const Th = styled.th`
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: left;
+  `;
 
-const Tr = styled.tr`
-  &:nth-child(even) {
-    background-color: #f2f2f2; /* Cor para linhas alternadas */
-  }
-`;
+  const Tbody = styled.tbody``;
 
-const Td = styled.td`
-  padding: 10px;
-  border: 1px solid #ccc;
-`;
+  const Tr = styled.tr`
+    &:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+  `;
 
-export default function Tabela() {
+  const Td = styled.td`
+    padding: 10px;
+    border: 1px solid #ccc;
+  `;
+
+  useEffect(() => {
+    const buscarDados = async () => {
+      try {
+        const resposta = await fetch(
+          "http://localhost:3000/emprestimos/ativo"
+        );
+        const dadosApi = await resposta.json();
+        console.log("Resposta API:", dadosApi);
+        setDados(Array.isArray(dadosApi) ? dadosApi : []);
+      } catch (erro) {
+        console.error("Erro ao carregar dados:", erro);
+      }
+    };
+
+    buscarDados();
+  }, []);
+
   return (
     <div style={{ padding: "20px" }}>
+      <h2>Lista de Empréstimos</h2>
+
       <Table>
         <Thead>
           <tr>
-            <Th>ID do Cliente</Th>
-            <Th>Nome do Usuário</Th>
-            <Th>Nome do Livro</Th>
-            <Th>Reserva Atual (Data de Devolução)</Th>
+            <Th>ID Usuário</Th>
+            <Th>Nome Usuário</Th>
+            <Th>Livro</Th>
+            <Th>Data Devolução</Th>
           </tr>
         </Thead>
+
         <Tbody>
-          <Tr>
-            <Td>1</Td>
-            <Td>João Silva</Td>
-            <Td>O Hobbit</Td>
-            <Td>2025-11-15</Td>
-          </Tr>
-          <Tr>
-            <Td>2</Td>
-            <Td>Maria Lima</Td>
-            <Td>1984</Td>
-            <Td>2025-11-20</Td>
-          </Tr>
+          {dados.length === 0 ? (
+            <Tr>
+              <Td colSpan={4} style={{ textAlign: "center" }}>
+                Nenhum empréstimo encontrado.
+              </Td>
+            </Tr>
+          ) : (
+            dados.map((item, index) => (
+              <Tr key={index}>
+                <Td>{item.id_usuario}</Td>
+                <Td>{item.nome_usuario}</Td>
+                <Td>{item.nome_livro}</Td>
+                <Td>
+                  {item.data_devolucao
+                    ? new Date(item.data_devolucao).toLocaleDateString("pt-BR")
+                    : "—"}
+                </Td>
+              </Tr>
+            ))
+          )}
         </Tbody>
       </Table>
     </div>

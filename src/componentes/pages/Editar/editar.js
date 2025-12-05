@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import Fundo from "../../img/FundoLivros.webp";
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const GlobalStyle = createGlobalStyle`
 body{  
@@ -48,6 +47,10 @@ const Card = styled.div`
   box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.3);
   width: 800px;
   max-width: 95%;
+  flex-direction: column; /* mobile empilha */
+  @media (min-width: 768px) {
+    flex-direction: row; /* desktop lado a lado */
+  }
 `;
 
 const FormSection = styled.form`
@@ -63,6 +66,46 @@ const TituloForm = styled.h2`
   font-weight: 800;
 `;
 
+const Section = styled.section`
+  display: flex;
+  flex-direction: column; /* mobile empilha */
+  gap: 20px;
+  @media (min-width: 768px) {
+    flex-direction: row; /* desktop lado a lado */
+  }
+`;
+
+const UploadBox = styled.div`
+  width: 100%;
+  height: 200px;
+  position: relative;
+  border-radius: 10%;
+  border-bottom: 3px solid #27387f;
+  overflow: hidden;
+  background: #f0f0f0;
+  @media (min-width: 768px) {
+    width: 200px;
+    height: 250px;
+  }
+`;
+
+const InputFile = styled.input`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+`;
+
+const PreviewImg = styled.img`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+`;
+
 const Input = styled.input`
   margin-bottom: 15px;
   padding: 12px;
@@ -72,8 +115,8 @@ const Input = styled.input`
   font-size: 15px;
   border-bottom: 3px solid #27387f;
   outline: none;
-  width: 450px;
-  margin-left: 15px;
+  width: 100%;
+  max-width: 450px;
 `;
 
 const TextArea = styled.textarea`
@@ -85,12 +128,11 @@ const TextArea = styled.textarea`
   font-size: 15px;
   border-bottom: 3px solid #27387f;
   outline: none;
-  width: 450px;
-  margin-left: 15px;
+  width: 100%;
+  max-width: 450px;
   resize: none;
   height: 100px;
 `;
-
 
 const Botao = styled.button`
   padding: 14px;
@@ -100,45 +142,38 @@ const Botao = styled.button`
   font-size: 16px;
   margin-top: 10px;
   transition: background 0.3s;
-
+  border: none;
+  border-radius: 5px;
   &:hover {
     background: #1d2b5c;
   }
 `;
 
-const InputFile = styled.input`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  opacity: 0; /* invisível mas clicável */
+const BotaoCancelar = styled.button`
+  padding: 14px;
+  background: #b3b3b3;
+  color: black;
   cursor: pointer;
-  z-index: 2; /* fica por cima para continuar clicável */
-`;
-const Section = styled.section`
-  display: flex;
-`;
-
-
-const UploadBox = styled.div`
-  width: 200px;
-  height: 95%;
-  position: relative;
-  border-radius: 10%;
-  border-bottom: 3px solid #27387f;
-  overflow: hidden;
-  background: #f0f0f0;
-`;
-
-const PreviewImg = styled.img`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  font-size: 16px;
+  margin-top: 10px;
+  margin-left: 0;
+  transition: background 0.3s;
+  border: none;
   border-radius: 5px;
-  z-index: 1;
+  &:hover {
+    background: #8e8e8e;
+  }
 `;
 
-/* --- styled components omitidos por espaço, iguais aos seus... --- */
+const ButtonGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  @media (min-width: 480px) {
+    flex-direction: row;
+  }
+`;
 
 export default function EditarLivro() {
   const { id } = useParams();
@@ -151,13 +186,13 @@ export default function EditarLivro() {
   const [imagem, setImagem] = useState(null);
   const [preview, setPreview] = useState(null);
 
-  // --------------------------------------------------
-  // CARREGAR DADOS DO LIVRO
-  // --------------------------------------------------
+  // Carregar dados do livro
   useEffect(() => {
     async function carregarDados() {
       try {
-        const resposta = await fetch(`http://localhost:3000/livros/${id}`);
+        const resposta = await fetch(
+          `http://localhost:3000/livros/livrosPorId/${id}`
+        );
         const dados = await resposta.json();
 
         if (!resposta.ok) {
@@ -171,8 +206,7 @@ export default function EditarLivro() {
         setAvaliacao(dados.avaliacao || "");
 
         if (dados.imagem) {
-          const base64 = `data:image/jpeg;base64,${dados.imagem}`;
-          setPreview(base64);
+          setPreview(`data:image/jpeg;base64,${dados.imagem}`);
         }
       } catch (erro) {
         console.error("Erro ao buscar dados:", erro);
@@ -192,19 +226,13 @@ export default function EditarLivro() {
       formData.append("autor", autor);
       formData.append("avaliacao", avaliacao);
 
-      // 🔥 CORREÇÃO: manter imagem original caso usuário não selecione uma nova
       if (imagem) {
         formData.append("imagem", imagem);
-      } else {
-        formData.append("manterImagem", "true");
       }
 
       const resposta = await fetch(
         `http://localhost:3000/livros/atualizarlivros/${id}`,
-        {
-          method: "PUT",
-          body: formData,
-        }
+        { method: "PUT", body: formData }
       );
 
       const dados = await resposta.json();
@@ -216,76 +244,66 @@ export default function EditarLivro() {
         alert(dados.erro || "Erro ao atualizar o livro.");
       }
     } catch (erro) {
-      console.error("Erro ao conectar à API:", erro);
+      console.error("Erro ao conectar:", erro);
       alert("Falha ao conectar ao servidor.");
     }
   };
 
- return (
+  return (
     <>
       <GlobalStyle />
       <Header>
         <Titulo>BOOKCLOUD</Titulo>
       </Header>
+
       <Container>
         <Card>
           <FormSection onSubmit={handleSubmit}>
-            <TituloForm>Cadastro de Livros</TituloForm>
+            <TituloForm>Editar Livro</TituloForm>
+
             <Section>
               <UploadBox>
-  {preview && <PreviewImg src={preview} alt="Pré-visualização" />}
-  <InputFile
-    type="file"
-    accept="image/*"
-    onChange={(e) => {
-      const file = e.target.files[0];
-      setImagem(file);
-      if (file) {
-        setPreview(URL.createObjectURL(file));
-      } else {
-        setPreview(null);
-      }
-    }}
-  />
-</UploadBox>
+                {preview && <PreviewImg src={preview} alt="Pré-visualização" />}
+                <InputFile
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    setImagem(file);
+                    if (file) setPreview(URL.createObjectURL(file));
+                  }}
+                />
+              </UploadBox>
 
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <Input
                   type="text"
-                  className="form-control"
-                  id="nome"
-                  name="nome"
-                  placeholder="Insira o nome do livro"
+                  placeholder="Nome do livro"
                   value={nome}
-                  onChange={(e) => {
-                    setNome(e.target.value);
-                  }}
-                  required
+                  onChange={(e) => setNome(e.target.value)}
                 />
+
                 <TextArea
-                  placeholder="Insira a sinopse do livro"
-                  type="text"
-                  id="sinopse"
-                  name="sinopse"
+                  placeholder="Sinopse"
                   value={sinopse}
                   onChange={(e) => setSinopse(e.target.value)}
-                  required
                 />
+
                 <Input
                   type="text"
-                  className="form-control"
-                  id="autor"
-                  name="autor"
-                  placeholder="Insira so nome do Autor"
+                  placeholder="Autor"
                   value={autor}
-                  onChange={(e) => {
-                    setAutor(e.target.value);
-                  }}
-                  required
+                  onChange={(e) => setAutor(e.target.value)}
                 />
               </div>
             </Section>
-            <Botao type="submit">Cadastrar</Botao>
+
+            <ButtonGroup>
+              <Botao type="submit">Salvar Alterações</Botao>
+              <BotaoCancelar onClick={() => navigate("/acervo")}>
+                Cancelar
+              </BotaoCancelar>
+            </ButtonGroup>
           </FormSection>
         </Card>
       </Container>

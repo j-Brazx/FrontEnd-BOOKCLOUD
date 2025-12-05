@@ -173,6 +173,8 @@ export default function Categorias() {
   const [botaoSelecionado, setBotaoSelecionado] = useState(null);
   const navigate = useNavigate();
 
+  const role = localStorage.getItem("role");
+
   // -------------------- BUSCAR CATEGORIAS E TODOS OS LIVROS --------------------
   useEffect(() => {
     const fetchCategorias = async () => {
@@ -282,8 +284,9 @@ export default function Categorias() {
   return (
     <Container>
       <ColunaCategoria>
-        <BtnAdicionar onClick={() => setModal(true)}>Adicionar</BtnAdicionar>
-
+         {role === "bibliotecário" && ( 
+          <BtnAdicionar onClick={() => setModal(true)}>Adicionar</BtnAdicionar>
+         )}
         <NomeCat>
           {categorias.map((cat) => (
             <Cat
@@ -337,7 +340,7 @@ export default function Categorias() {
           <ListaLivros>
             {livros.length > 0 ? (
               livros.map((livro) => (
-                <Div key={livro.id}>
+                <Div key={livro.id} onClick={() => navigate(`/sinopse/${livro.id}`)}>
                   {livro.imagem && (
                     <Img src={livro.imagem} alt={livro.nome} />
                   )}

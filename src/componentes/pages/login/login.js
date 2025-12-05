@@ -45,7 +45,7 @@ const Card = styled.div`
   background: white;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0px 6px 18px rgba(0,0,0,0.3);
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.3);
   width: 800px;
   max-width: 95%;
   height: 450px;
@@ -104,43 +104,46 @@ const WelcomeSection = styled.div`
 `;
 
 export default function Login() {
-   const [email, setEmail] = useState('');
-    const [senha, setSenha] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const executaSubmit = async (event) =>{
-        event.preventDefault();
-        setLoading(true);
-        setError('');
-        try{
-            const resposta = await fetch('http://localhost:3000/usuarios/login',{
-                method: 'POST',
-                headers:{
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({email,senha}),
-            });
-            const dados = await resposta.json();
+  const executaSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const resposta = await fetch("http://localhost:3000/usuarios/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, senha }),
+      });
+      const dados = await resposta.json();
 
-            if(resposta.ok){
-                //alert('Login bem-sucedido');
-                console.log('Dados da API', dados);
-                localStorage.setItem('usuario', JSON.stringify(dados.usuario));
-                navigate('/inicio');
-            }else{
-                setError(dados.message ||'Erro ao fazer Login. Tente novamente');
-            }
-
-        }catch(erro){
-            console.log('Falha ao conectar a API', erro);
-            setError('Não foi possível conectar ao servidor. Verifique sua conexão' + erro);
-        }finally{
-            setLoading(false);
-        }
+      if (resposta.ok) {
+        //alert('Login bem-sucedido');
+        console.log("Dados da API", dados);
+        localStorage.setItem("usuario", JSON.stringify(dados.usuario));
+        localStorage.setItem("role", dados.usuario.tipo_usuario);
+        localStorage.setItem("id", dados.usuario.id);
+        navigate("/inicio");
+      } else {
+        setError(dados.message || "Erro ao fazer Login. Tente novamente");
+      }
+    } catch (erro) {
+      console.log("Falha ao conectar a API", erro);
+      setError(
+        "Não foi possível conectar ao servidor. Verifique sua conexão" + erro
+      );
+    } finally {
+      setLoading(false);
     }
+  };
   return (
     <>
       <GlobalStyle />
@@ -151,14 +154,30 @@ export default function Login() {
         <Card>
           <FormSection onSubmit={executaSubmit}>
             <TituloForm>Login</TituloForm>
-            <Input type="text" className="form-control" id="email" name="email" placeholder="Insira seu E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <Input type="password" className="form-control" id="senha" name="senha" placeholder="Insira sua senha" value={senha} onChange={(e) => setSenha(e.target.value)} required />
+            <Input
+              type="text"
+              className="form-control"
+              id="email"
+              name="email"
+              placeholder="Insira seu E-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Input
+              type="password"
+              className="form-control"
+              id="senha"
+              name="senha"
+              placeholder="Insira sua senha"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              required
+            />
             <Botao type="submit">Entrar</Botao>
           </FormSection>
           <WelcomeSection>
-            <p>
-              Bem Vindo
-            </p>
+            <p>Bem Vindo</p>
           </WelcomeSection>
         </Card>
       </Container>

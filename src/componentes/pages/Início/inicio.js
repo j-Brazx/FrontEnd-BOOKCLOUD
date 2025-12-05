@@ -206,6 +206,8 @@ export default function Inicio() {
   const navigate = useNavigate();
   const [livros, setLivros] = useState([]);
 
+  const role = localStorage.getItem("role")
+
   useEffect(() => {
   axios.get("http://localhost:3000/livros/acervolivros")
     .then((res) => {
@@ -266,7 +268,7 @@ export default function Inicio() {
     </Div>
   ))}
 </Container>
-
+{role === "bibliotecário" && (
       <FabContainer>
         <OptionButton open={open} onClick={() => navigate("/cadastrar-livro")}>
           <Option>Novo Exemplar</Option>
@@ -277,7 +279,7 @@ export default function Inicio() {
         <MainButton onClick={() => setOpen(!open)}>
           {open ? "×" : "+"}
         </MainButton>
-      </FabContainer>
+      </FabContainer> )}
     </>
   );
 }

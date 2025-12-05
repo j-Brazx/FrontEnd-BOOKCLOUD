@@ -184,43 +184,45 @@ export default function Cadastro() {
   }, []);
 
   const execSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setErro("");
+  event.preventDefault();
+  setLoading(true);
+  setErro("");
 
-    try {
-      const formData = new FormData();
-      formData.append("nome", nome);
-      formData.append("sinopse", sinopse);
-      formData.append("autor", autor);
-      if (imagem) {
-        formData.append("imagem", imagem);
+  try {
+    const formData = new FormData();
+    formData.append("nome", nome);
+    formData.append("sinopse", sinopse);
+    formData.append("autor", autor);
+    if (imagem) formData.append("imagem", imagem);
+    formData.append("id_categoria", id_categoria);
+
+    alert("FormData a ser enviado:", formData);
+
+    const resposta = await fetch(
+      "http://localhost:3000/livros/cadastrarLivros",
+      {
+        method: "POST",
+        body: formData,
       }
-      formData.append("id_categoria", id_categoria);
+    );
 
-      const resposta = await fetch(
-        "http://localhost:3000/livros/cadastrarLivros",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+    const dados = await resposta.json();
+    console.log("Resposta do servidor:", dados);
 
-      const dados = await resposta.json();
-
-      if (resposta.ok) {
-        alert("Cadastro de livro realizado com sucesso");
-        navigate("/inicio");
-      } else {
-        setErro(dados.message || "Erro ao cadastrar livro. Tente novamente");
-      }
-    } catch (e) {
-      console.log("Falha ao conectar a API", e);
-      setErro("Não foi possível conectar ao servidor");
-    } finally {
-      setLoading(false);
+    if (resposta.ok) {
+      alert("Cadastro de livro realizado com sucesso");
+      navigate("/inicio");
+    } else {
+      setErro(dados.message || "Erro ao cadastrar livro. Tente novamente");
     }
-  };
+  } catch (e) {
+    console.log("Falha ao conectar a API", e);
+    setErro("Não foi possível conectar ao servidor");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <>
@@ -234,22 +236,22 @@ export default function Cadastro() {
             <TituloForm>Cadastro de Livros</TituloForm>
             <Section>
               <UploadBox>
-  {preview && <PreviewImg src={preview} alt="Pré-visualização" />}
-  <InputFile
-    type="file"
-    accept="image/*"
-    onChange={(e) => {
-      const file = e.target.files[0];
-      setImagem(file);
-      if (file) {
-        setPreview(URL.createObjectURL(file));
-      } else {
-        setPreview(null);
-      }
-    }}
-    required
-  />
-</UploadBox>
+                {preview && <PreviewImg src={preview} alt="Pré-visualização" />}
+                <InputFile
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    setImagem(file);
+                    if (file) {
+                      setPreview(URL.createObjectURL(file));
+                    } else {
+                      setPreview(null);
+                    }
+                  }}
+                  required
+                />
+              </UploadBox>
 
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <Input
@@ -292,9 +294,9 @@ export default function Cadastro() {
                   onChange={(e) => setId_categoria(e.target.value)}
                   required
                 >
-                     <Option value="" disabled>
-                Selecione um Gênero
-                </Option>
+                  <Option value="" disabled>
+                    Selecione um Gênero
+                  </Option>
                   {categoria.map((categorias) => (
                     <Option value={categorias.id} key={categorias.id}>
                       {categorias.nome_categoria}
